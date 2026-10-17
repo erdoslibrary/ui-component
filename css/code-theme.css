@@ -78,7 +78,7 @@
   margin: 0;
   padding: 16px 20px;
   overflow-x: auto;
-  max-height: 320px;
+  max-height: 560px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;

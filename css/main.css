@@ -171,6 +171,7 @@ body[data-theme="light"] .app-header {
 .app-shell {
   display: grid;
   grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-rows: 100%;
   height: calc(100vh - var(--header-height));
   overflow: hidden;
 }
@@ -328,13 +329,36 @@ body[data-theme="light"] .nav-item-btn.active {
 
 /* ─── Main Content Area ─── */
 .app-main {
-  flex: 1;
+  min-height: 0;
+  height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   background: var(--bg-app);
   padding: 20px 32px 60px;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.app-main::-webkit-scrollbar {
+  width: 10px;
+}
+
+.app-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.app-main::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--bg-app);
+}
+
+.app-main::-webkit-scrollbar-thumb:hover {
+  background: var(--text-dim);
 }
 
 /* ─── Detail Header ─── */
@@ -514,31 +538,34 @@ body[data-theme="light"] .nav-item-btn.active {
 }
 
 .stage-container {
-  min-height: 400px;
+  height: 420px;
+  min-height: 280px;
+  max-height: 850px;
   background-color: var(--bg-preview);
   background-image: var(--checker-pattern);
   background-size: 20px 20px;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  padding: 24px 20px;
+  padding: 16px;
   position: relative;
-  transition: all var(--transition-smooth);
-  overflow-x: auto;
+  overflow: hidden;
 }
 
 .stage-viewport-frame {
   width: 100%;
   max-width: 100%;
+  height: 100%;
   transition: max-width var(--transition-smooth);
   display: flex;
+  align-items: stretch;
   justify-content: center;
 }
 
 .stage-viewport-frame.tablet {
   max-width: 768px;
   border: 1px dashed var(--border-strong);
-  padding: 20px;
+  padding: 12px;
   border-radius: var(--radius-md);
   background: var(--bg-surface);
 }
@@ -546,18 +573,73 @@ body[data-theme="light"] .nav-item-btn.active {
 .stage-viewport-frame.mobile {
   max-width: 375px;
   border: 1px dashed var(--border-strong);
-  padding: 20px;
+  padding: 12px;
   border-radius: var(--radius-md);
   background: var(--bg-surface);
 }
 
 .stage-iframe {
   width: 100%;
-  min-height: 380px;
+  height: 100%;
   border: none;
   display: block;
   background: transparent;
-  transition: height 0.2s ease;
+}
+
+/* ─── Stage Resize Handle Bar ─── */
+.stage-resizer {
+  height: 14px;
+  background: var(--bg-surface-elevated);
+  border-top: 1px solid var(--border-subtle);
+  cursor: row-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+  outline: none;
+}
+
+.stage-resizer:hover,
+.stage-resizer.is-active {
+  background: rgba(255, 255, 255, 0.05);
+  border-top-color: var(--border-strong);
+}
+
+body[data-theme="light"] .stage-resizer:hover,
+body[data-theme="light"] .stage-resizer.is-active {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.stage-resizer:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+
+.resizer-handle-bar {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--border-strong);
+  transition: width var(--transition-fast), background-color var(--transition-fast);
+}
+
+.stage-resizer:hover .resizer-handle-bar,
+.stage-resizer.is-active .resizer-handle-bar {
+  width: 48px;
+  background: var(--text-muted);
+}
+
+/* 드래그 리사이징 중 전역 스타일 (포인터 튐 및 iframe 이벤트 삼킴 방지) */
+body.is-stage-resizing {
+  cursor: row-resize !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+body.is-stage-resizing iframe {
+  pointer-events: none !important;
 }
 
 /* ─── Code Viewer Section ─── */

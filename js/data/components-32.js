@@ -118,8 +118,9 @@ document.addEventListener('click', () => {
 <button class="btn btn-danger">삭제</button>
 <button class="btn btn-primary" disabled>비활성</button>`,
     css: `.btn {
-  padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600;
-  cursor: pointer; border: 1px solid transparent; font-family: inherit;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 74px; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: 1px solid transparent; font-family: inherit; text-align: center;
   transition: all .15s ease;
 }
 .btn-primary { background: #6366f1; color: #fff; }

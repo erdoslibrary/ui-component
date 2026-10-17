@@ -140,10 +140,15 @@
           </div>
         </div>
 
-        <div class="stage-container">
+        <div class="stage-container" id="stageContainer">
           <div class="stage-viewport-frame" id="stageViewportFrame">
             <iframe id="stageIframe" class="stage-iframe" title="컴포넌트 라이브 프리뷰" sandbox="allow-scripts allow-modals allow-same-origin"></iframe>
           </div>
+        </div>
+
+        <!-- 하단 드래그 리사이저 바 -->
+        <div class="stage-resizer" id="stageResizer" title="마우스로 상하 드래그하여 프리뷰 높이 조절 (더블클릭 시 기본 420px 복원)" role="separator" aria-orientation="horizontal" aria-label="라이브 프리뷰 높이 조절 바" tabindex="0">
+          <div class="resizer-handle-bar"></div>
         </div>
       </section>
 

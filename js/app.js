@@ -33,6 +33,7 @@
     countLayers: document.getElementById('countLayers'),
 
     // Main Viewer
+    mainViewer: document.getElementById('mainViewer'),
     heroNum: document.getElementById('heroNum'),
     heroCat: document.getElementById('heroCat'),
     heroTitle: document.getElementById('heroTitle'),
@@ -43,8 +44,10 @@
     specA11y: document.getElementById('specA11y'),
 
     // Preview Stage
+    stageContainer: document.getElementById('stageContainer'),
     stageViewportFrame: document.getElementById('stageViewportFrame'),
     stageIframe: document.getElementById('stageIframe'),
+    stageResizer: document.getElementById('stageResizer'),
     reloadPreviewBtn: document.getElementById('reloadPreviewBtn'),
     viewportBtns: document.querySelectorAll('.viewport-btn'),
 
@@ -182,7 +185,7 @@
     if (dom.countLayers) dom.countLayers.textContent = `${filteredLayers.length}`;
   }
 
-  // 7. 인터랙티브 미리보기 iframe 주입 (안전 격리 샌드박스 & 동적 높이 반응)
+  // 7. 인터랙티브 미리보기 iframe 주입 (안전 격리 샌드박스)
   function renderLivePreview(item) {
     if (!dom.stageIframe) return;
 
@@ -203,9 +206,10 @@
     margin: 0;
     padding: 0;
     width: 100%;
+    min-height: 100%;
   }
   body {
-    padding: 36px 24px 140px; /* 팝업/달력/드롭다운이 펼쳐져도 잘리지 않도록 넉넉한 하단 여백 확보 */
+    padding: 32px 20px 48px;
     font-family: 'Pretendard', 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
     color: ${currentTheme === 'dark' ? '#f8fafc' : '#0f172a'};
     background: transparent;
@@ -213,78 +217,49 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    min-height: 360px;
+    overflow-y: auto;
     overflow-x: hidden;
+  }
+  /* 중앙 정렬 래퍼 (콘텐츠가 짧을 땐 상하 중앙, 길어지면 상단부터 스크롤) */
+  .preview-mount {
+    width: 100%;
+    margin: auto 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
   ${item.css || ''}
 </style>
 </head>
 <body>
-  ${item.html || ''}
+  <div class="preview-mount">
+    ${item.html || ''}
+  </div>
   <script>
     try {
       ${item.js || ''}
     } catch(err) {
       console.warn("Component script preview warning:", err);
     }
-
-    // 드롭다운/달력/아코디언 토글 시 부모 창에 높이 갱신 알림
-    function notifyResize() {
-      try {
-        const h = Math.max(
-          document.body.scrollHeight,
-          document.documentElement.scrollHeight,
-          360
-        );
-        window.parent.postMessage({ type: 'PREVIEW_RESIZE', height: h }, '*');
-      } catch (e) {}
-    }
-
-    // DOM 변경 및 클릭 이벤트 발생 시 실시간 높이 재계산
-    window.addEventListener('click', () => setTimeout(notifyResize, 60));
-    window.addEventListener('resize', notifyResize);
-    if (window.ResizeObserver) {
-      new ResizeObserver(() => notifyResize()).observe(document.body);
-    }
-    setTimeout(notifyResize, 100);
+    // 마우스 휠 이벤트 포워딩: 프리뷰 내부에서 휠 조작 시 부모 창(우측 메인 뷰어) 스크롤이 자연스럽게 이어지도록 처리
+    window.addEventListener('wheel', function(e) {
+      var isScrollable = document.body.scrollHeight > window.innerHeight;
+      if (!isScrollable) {
+        window.parent.postMessage({ type: 'FORWARD_WHEEL', deltaY: e.deltaY }, '*');
+      } else {
+        var atTop = e.deltaY < 0 && (document.documentElement.scrollTop <= 0 && document.body.scrollTop <= 0);
+        var atBottom = e.deltaY > 0 && (window.innerHeight + window.pageYOffset >= document.body.scrollHeight - 2);
+        if (atTop || atBottom) {
+          window.parent.postMessage({ type: 'FORWARD_WHEEL', deltaY: e.deltaY }, '*');
+        }
+      }
+    }, { passive: true });
   <\/script>
 </body>
 </html>`;
 
     dom.stageIframe.srcdoc = docHtml;
-
-    // 동적 높이 자동 조절 함수
-    function adjustIframeHeight(customHeight) {
-      try {
-        if (customHeight) {
-          dom.stageIframe.style.height = `${Math.max(customHeight + 20, 380)}px`;
-          return;
-        }
-        const win = dom.stageIframe.contentWindow;
-        if (win && win.document && win.document.body) {
-          const bodyH = win.document.body.scrollHeight;
-          const docH = win.document.documentElement.scrollHeight;
-          const h = Math.max(bodyH, docH, 360);
-          dom.stageIframe.style.height = `${Math.max(h + 24, 380)}px`;
-        } else {
-          dom.stageIframe.style.height = '380px';
-        }
-      } catch (e) {
-        dom.stageIframe.style.height = '380px';
-      }
-    }
-
-    // postMessage 수신 등록
-    window.onmessage = (e) => {
-      if (e.data && e.data.type === 'PREVIEW_RESIZE' && e.data.height) {
-        adjustIframeHeight(e.data.height);
-      }
-    };
-
-    dom.stageIframe.onload = () => {
-      adjustIframeHeight();
-      setTimeout(adjustIframeHeight, 150);
-    };
   }
 
   // 8. 컴포넌트 선택 및 화면 갱신
@@ -407,7 +382,111 @@ ${item.js && item.js.trim() ? `<script>\n${item.js}\n<\/script>` : ''}`;
     }
   }
 
-  // 12. 검색 및 카테고리 필터
+  // 12. 라이브 프리뷰 하단 드래그 높이 조절
+  function setupStageResizer() {
+    if (!dom.stageResizer || !dom.stageContainer) return;
+
+    const DEFAULT_HEIGHT = 420;
+    const MIN_HEIGHT = 280;
+    const MAX_HEIGHT = 850;
+
+    // 저장된 높이 복원 또는 기본 420px 적용
+    try {
+      const saved = localStorage.getItem('stage_container_height');
+      if (saved && !isNaN(parseInt(saved, 10))) {
+        const h = Math.min(Math.max(parseInt(saved, 10), MIN_HEIGHT), MAX_HEIGHT);
+        dom.stageContainer.style.height = `${h}px`;
+      } else {
+        dom.stageContainer.style.height = `${DEFAULT_HEIGHT}px`;
+      }
+    } catch (e) {
+      dom.stageContainer.style.height = `${DEFAULT_HEIGHT}px`;
+    }
+
+    let isDragging = false;
+    let startY = 0;
+    let startH = 0;
+
+    function onPointerDown(e) {
+      isDragging = true;
+      startY = e.clientY ?? (e.touches && e.touches[0].clientY);
+      startH = dom.stageContainer.getBoundingClientRect().height;
+
+      document.body.classList.add('is-stage-resizing');
+      dom.stageResizer.classList.add('is-active');
+
+      document.addEventListener('mousemove', onPointerMove, { passive: false });
+      document.addEventListener('mouseup', onPointerUp);
+      document.addEventListener('touchmove', onPointerMove, { passive: false });
+      document.addEventListener('touchend', onPointerUp);
+
+      e.preventDefault();
+    }
+
+    function onPointerMove(e) {
+      if (!isDragging) return;
+      const currentY = e.clientY ?? (e.touches && e.touches[0].clientY);
+      if (currentY === undefined) return;
+
+      const deltaY = currentY - startY;
+      const newHeight = Math.min(Math.max(Math.round(startH + deltaY), MIN_HEIGHT), MAX_HEIGHT);
+      dom.stageContainer.style.height = `${newHeight}px`;
+
+      e.preventDefault();
+    }
+
+    function onPointerUp() {
+      if (!isDragging) return;
+      isDragging = false;
+      document.body.classList.remove('is-stage-resizing');
+      dom.stageResizer.classList.remove('is-active');
+
+      document.removeEventListener('mousemove', onPointerMove);
+      document.removeEventListener('mouseup', onPointerUp);
+      document.removeEventListener('touchmove', onPointerMove);
+      document.removeEventListener('touchend', onPointerUp);
+
+      try {
+        const finalH = Math.round(dom.stageContainer.getBoundingClientRect().height);
+        localStorage.setItem('stage_container_height', `${finalH}`);
+      } catch (e) {}
+    }
+
+    dom.stageResizer.addEventListener('mousedown', onPointerDown);
+    dom.stageResizer.addEventListener('touchstart', onPointerDown, { passive: false });
+
+    // 더블클릭 시 기본 높이(420px) 복원
+    dom.stageResizer.addEventListener('dblclick', () => {
+      dom.stageContainer.style.height = `${DEFAULT_HEIGHT}px`;
+      try {
+        localStorage.setItem('stage_container_height', `${DEFAULT_HEIGHT}`);
+      } catch (e) {}
+      showGlobalToast('기본 프리뷰 높이(420px)로 복원되었습니다.');
+    });
+
+    // 키보드 접근성 지원 (ArrowUp / ArrowDown / Enter / Space)
+    dom.stageResizer.addEventListener('keydown', (e) => {
+      const currentH = Math.round(dom.stageContainer.getBoundingClientRect().height);
+      if (e.key === 'ArrowDown') {
+        const nextH = Math.min(currentH + 24, MAX_HEIGHT);
+        dom.stageContainer.style.height = `${nextH}px`;
+        try { localStorage.setItem('stage_container_height', `${nextH}`); } catch(err) {}
+        e.preventDefault();
+      } else if (e.key === 'ArrowUp') {
+        const nextH = Math.max(currentH - 24, MIN_HEIGHT);
+        dom.stageContainer.style.height = `${nextH}px`;
+        try { localStorage.setItem('stage_container_height', `${nextH}`); } catch(err) {}
+        e.preventDefault();
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        dom.stageContainer.style.height = `${DEFAULT_HEIGHT}px`;
+        try { localStorage.setItem('stage_container_height', `${DEFAULT_HEIGHT}`); } catch(err) {}
+        showGlobalToast('기본 프리뷰 높이(420px)로 복원되었습니다.');
+        e.preventDefault();
+      }
+    });
+  }
+
+  // 13. 검색 및 카테고리 필터
   function setupFilters() {
     if (dom.searchInput) {
       dom.searchInput.addEventListener('input', (e) => {
@@ -435,7 +514,7 @@ ${item.js && item.js.trim() ? `<script>\n${item.js}\n<\/script>` : ''}`;
     });
   }
 
-  // 13. 테마 토글 (Dark / Light)
+  // 14. 테마 토글 (Dark / Light)
   function setupTheme() {
     const savedTheme = localStorage.getItem('ui_catalog_theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
@@ -458,7 +537,7 @@ ${item.js && item.js.trim() ? `<script>\n${item.js}\n<\/script>` : ''}`;
     dom.themeToggleBtn.innerHTML = theme === 'dark' ? '☀️ 라이트' : '🌙 다크';
   }
 
-  // 14. 모바일 메뉴 토글
+  // 15. 모바일 메뉴 토글
   function setupMobileMenu() {
     if (dom.mobileMenuBtn && dom.sidebar) {
       dom.mobileMenuBtn.addEventListener('click', () => {
@@ -467,12 +546,13 @@ ${item.js && item.js.trim() ? `<script>\n${item.js}\n<\/script>` : ''}`;
     }
   }
 
-  // 15. 해시 라우팅 및 초기화 실행
+  // 16. 해시 라우팅 및 초기화 실행
   function init() {
     setupTheme();
     setupFilters();
     setupTabs();
     setupViewportControls();
+    setupStageResizer();
     setupMobileMenu();
     updateSidebar();
 
@@ -499,6 +579,13 @@ ${item.js && item.js.trim() ? `<script>\n${item.js}\n<\/script>` : ''}`;
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         if (dom.searchInput) dom.searchInput.focus();
+      }
+    });
+
+    // 프리뷰 iframe 휠 이벤트 수신 및 우측 메인 뷰어 스크롤 연동
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'FORWARD_WHEEL' && dom.mainViewer) {
+        dom.mainViewer.scrollBy({ top: e.data.deltaY, behavior: 'auto' });
       }
     });
   }
