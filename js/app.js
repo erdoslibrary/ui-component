@@ -33,6 +33,7 @@
     countLayers: document.getElementById('countLayers'),
 
     // Main Viewer
+    mainViewer: document.getElementById('mainViewer'),
     heroNum: document.getElementById('heroNum'),
     heroCat: document.getElementById('heroCat'),
     heroTitle: document.getElementById('heroTitle'),
@@ -41,10 +42,14 @@
     specUsecase: document.getElementById('specUsecase'),
     specFeature: document.getElementById('specFeature'),
     specA11y: document.getElementById('specA11y'),
+    specToggleTab: document.getElementById('specToggleTab'),
+    heroSpecGrid: document.getElementById('heroSpecGrid'),
 
     // Preview Stage
+    stageContainer: document.getElementById('stageContainer'),
     stageViewportFrame: document.getElementById('stageViewportFrame'),
     stageIframe: document.getElementById('stageIframe'),
+    stageResizer: document.getElementById('stageResizer'),
     reloadPreviewBtn: document.getElementById('reloadPreviewBtn'),
     viewportBtns: document.querySelectorAll('.viewport-btn'),
 
@@ -186,55 +191,77 @@
   function renderLivePreview(item) {
     if (!dom.stageIframe) return;
 
+    // 현재 테마 확인
+    const currentTheme = document.body.getAttribute('data-theme') || 'dark';
+
     // iframe 내부 HTML 문서 생성
     const docHtml = `<!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="${currentTheme}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 <style>
   * { box-sizing: border-box; }
-  body {
+  html, body {
     margin: 0;
-    padding: 24px 20px;
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-    color: #1e293b;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+  }
+  body {
+    padding: 32px 20px 48px;
+    font-family: 'Pretendard', 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: ${currentTheme === 'dark' ? '#f8fafc' : '#0f172a'};
     background: transparent;
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  /* 중앙 정렬 래퍼 (콘텐츠가 짧을 땐 상하 중앙, 길어지면 상단부터 스크롤) */
+  .preview-mount {
+    width: 100%;
+    margin: auto 0;
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 240px;
-    overflow-x: hidden;
   }
   ${item.css || ''}
 </style>
 </head>
 <body>
-  ${item.html || ''}
+  <div class="preview-mount">
+    ${item.html || ''}
+  </div>
   <script>
     try {
       ${item.js || ''}
     } catch(err) {
       console.warn("Component script preview warning:", err);
     }
+    // 마우스 휠 이벤트 포워딩: 프리뷰 내부에서 휠 조작 시 부모 창(우측 메인 뷰어) 스크롤이 자연스럽게 이어지도록 처리
+    window.addEventListener('wheel', function(e) {
+      var isScrollable = document.body.scrollHeight > window.innerHeight;
+      if (!isScrollable) {
+        window.parent.postMessage({ type: 'FORWARD_WHEEL', deltaY: e.deltaY }, '*');
+      } else {
+        var atTop = e.deltaY < 0 && (document.documentElement.scrollTop <= 0 && document.body.scrollTop <= 0);
+        var atBottom = e.deltaY > 0 && (window.innerHeight + window.pageYOffset >= document.body.scrollHeight - 2);
+        if (atTop || atBottom) {
+          window.parent.postMessage({ type: 'FORWARD_WHEEL', deltaY: e.deltaY }, '*');
+        }
+      }
+    }, { passive: true });
   <\/script>
 </body>
 </html>`;
 
     dom.stageIframe.srcdoc = docHtml;
-
-    // 로드 후 높이 자동 반응
-    dom.stageIframe.onload = () => {
-      try {
-        const body = dom.stageIframe.contentWindow.document.body;
-        const html = dom.stageIframe.contentWindow.document.documentElement;
-        const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, 260);
-        dom.stageIframe.style.height = `${Math.min(height + 20, 500)}px`;
-      } catch (e) {
-        dom.stageIframe.style.height = '280px';
-      }
-    };
   }
 
   // 8. 컴포넌트 선택 및 화면 갱신
@@ -357,7 +384,111 @@ ${item.js && item.js.trim() ? `<script>\n${item.js}\n<\/script>` : ''}`;
     }
   }
 
-  // 12. 검색 및 카테고리 필터
+  // 12. 라이브 프리뷰 하단 드래그 높이 조절
+  function setupStageResizer() {
+    if (!dom.stageResizer || !dom.stageContainer) return;
+
+    const DEFAULT_HEIGHT = 420;
+    const MIN_HEIGHT = 280;
+    const MAX_HEIGHT = 850;
+
+    // 저장된 높이 복원 또는 기본 420px 적용
+    try {
+      const saved = localStorage.getItem('stage_container_height');
+      if (saved && !isNaN(parseInt(saved, 10))) {
+        const h = Math.min(Math.max(parseInt(saved, 10), MIN_HEIGHT), MAX_HEIGHT);
+        dom.stageContainer.style.height = `${h}px`;
+      } else {
+        dom.stageContainer.style.height = `${DEFAULT_HEIGHT}px`;
+      }
+    } catch (e) {
+      dom.stageContainer.style.height = `${DEFAULT_HEIGHT}px`;
+    }
+
+    let isDragging = false;
+    let startY = 0;
+    let startH = 0;
+
+    function onPointerDown(e) {
+      isDragging = true;
+      startY = e.clientY ?? (e.touches && e.touches[0].clientY);
+      startH = dom.stageContainer.getBoundingClientRect().height;
+
+      document.body.classList.add('is-stage-resizing');
+      dom.stageResizer.classList.add('is-active');
+
+      document.addEventListener('mousemove', onPointerMove, { passive: false });
+      document.addEventListener('mouseup', onPointerUp);
+      document.addEventListener('touchmove', onPointerMove, { passive: false });
+      document.addEventListener('touchend', onPointerUp);
+
+      e.preventDefault();
+    }
+
+    function onPointerMove(e) {
+      if (!isDragging) return;
+      const currentY = e.clientY ?? (e.touches && e.touches[0].clientY);
+      if (currentY === undefined) return;
+
+      const deltaY = currentY - startY;
+      const newHeight = Math.min(Math.max(Math.round(startH + deltaY), MIN_HEIGHT), MAX_HEIGHT);
+      dom.stageContainer.style.height = `${newHeight}px`;
+
+      e.preventDefault();
+    }
+
+    function onPointerUp() {
+      if (!isDragging) return;
+      isDragging = false;
+      document.body.classList.remove('is-stage-resizing');
+      dom.stageResizer.classList.remove('is-active');
+
+      document.removeEventListener('mousemove', onPointerMove);
+      document.removeEventListener('mouseup', onPointerUp);
+      document.removeEventListener('touchmove', onPointerMove);
+      document.removeEventListener('touchend', onPointerUp);
+
+      try {
+        const finalH = Math.round(dom.stageContainer.getBoundingClientRect().height);
+        localStorage.setItem('stage_container_height', `${finalH}`);
+      } catch (e) {}
+    }
+
+    dom.stageResizer.addEventListener('mousedown', onPointerDown);
+    dom.stageResizer.addEventListener('touchstart', onPointerDown, { passive: false });
+
+    // 더블클릭 시 기본 높이(420px) 복원
+    dom.stageResizer.addEventListener('dblclick', () => {
+      dom.stageContainer.style.height = `${DEFAULT_HEIGHT}px`;
+      try {
+        localStorage.setItem('stage_container_height', `${DEFAULT_HEIGHT}`);
+      } catch (e) {}
+      showGlobalToast('기본 프리뷰 높이(420px)로 복원되었습니다.');
+    });
+
+    // 키보드 접근성 지원 (ArrowUp / ArrowDown / Enter / Space)
+    dom.stageResizer.addEventListener('keydown', (e) => {
+      const currentH = Math.round(dom.stageContainer.getBoundingClientRect().height);
+      if (e.key === 'ArrowDown') {
+        const nextH = Math.min(currentH + 24, MAX_HEIGHT);
+        dom.stageContainer.style.height = `${nextH}px`;
+        try { localStorage.setItem('stage_container_height', `${nextH}`); } catch(err) {}
+        e.preventDefault();
+      } else if (e.key === 'ArrowUp') {
+        const nextH = Math.max(currentH - 24, MIN_HEIGHT);
+        dom.stageContainer.style.height = `${nextH}px`;
+        try { localStorage.setItem('stage_container_height', `${nextH}`); } catch(err) {}
+        e.preventDefault();
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        dom.stageContainer.style.height = `${DEFAULT_HEIGHT}px`;
+        try { localStorage.setItem('stage_container_height', `${DEFAULT_HEIGHT}`); } catch(err) {}
+        showGlobalToast('기본 프리뷰 높이(420px)로 복원되었습니다.');
+        e.preventDefault();
+      }
+    });
+  }
+
+  // 13. 검색 및 카테고리 필터
   function setupFilters() {
     if (dom.searchInput) {
       dom.searchInput.addEventListener('input', (e) => {
@@ -385,7 +516,7 @@ ${item.js && item.js.trim() ? `<script>\n${item.js}\n<\/script>` : ''}`;
     });
   }
 
-  // 13. 테마 토글 (Dark / Light)
+  // 14. 테마 토글 (Dark / Light)
   function setupTheme() {
     const savedTheme = localStorage.getItem('ui_catalog_theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
@@ -408,7 +539,7 @@ ${item.js && item.js.trim() ? `<script>\n${item.js}\n<\/script>` : ''}`;
     dom.themeToggleBtn.innerHTML = theme === 'dark' ? '☀️ 라이트' : '🌙 다크';
   }
 
-  // 14. 모바일 메뉴 토글
+  // 15. 모바일 메뉴 토글
   function setupMobileMenu() {
     if (dom.mobileMenuBtn && dom.sidebar) {
       dom.mobileMenuBtn.addEventListener('click', () => {
@@ -417,12 +548,25 @@ ${item.js && item.js.trim() ? `<script>\n${item.js}\n<\/script>` : ''}`;
     }
   }
 
-  // 15. 해시 라우팅 및 초기화 실행
+  // 16. 스펙 & 가이드 토글 탭 제어
+  function setupSpecToggle() {
+    if (!dom.specToggleTab || !dom.heroSpecGrid) return;
+
+    dom.specToggleTab.addEventListener('click', () => {
+      const isOpen = dom.heroSpecGrid.classList.toggle('is-open');
+      dom.specToggleTab.classList.toggle('is-active', isOpen);
+      dom.specToggleTab.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+  }
+
+  // 16. 해시 라우팅 및 초기화 실행
   function init() {
     setupTheme();
     setupFilters();
     setupTabs();
     setupViewportControls();
+    setupStageResizer();
+    setupSpecToggle();
     setupMobileMenu();
     updateSidebar();
 
@@ -449,6 +593,13 @@ ${item.js && item.js.trim() ? `<script>\n${item.js}\n<\/script>` : ''}`;
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         if (dom.searchInput) dom.searchInput.focus();
+      }
+    });
+
+    // 프리뷰 iframe 휠 이벤트 수신 및 우측 메인 뷰어 스크롤 연동
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'FORWARD_WHEEL' && dom.mainViewer) {
+        dom.mainViewer.scrollBy({ top: e.data.deltaY, behavior: 'auto' });
       }
     });
   }

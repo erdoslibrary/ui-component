@@ -49,12 +49,12 @@ const COMPONENTS_32 = [
     <span class="brow"><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span></span>
   </button>
   <div class="bento-popover">
-    <div class="bapp" title="메일">📧</div>
-    <div class="bapp" title="캘린더">📅</div>
-    <div class="bapp" title="드라이브">📁</div>
-    <div class="bapp" title="문서">📝</div>
-    <div class="bapp" title="채팅">💬</div>
-    <div class="bapp" title="지도">🗺️</div>
+    <div class="bapp" title="메일"><svg class="lucide lucide-mail" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
+    <div class="bapp" title="캘린더"><svg class="lucide lucide-calendar" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg></div>
+    <div class="bapp" title="드라이브"><svg class="lucide lucide-folder" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 8 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></div>
+    <div class="bapp" title="문서"><svg class="lucide lucide-file-text" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></div>
+    <div class="bapp" title="채팅"><svg class="lucide lucide-message-square" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+    <div class="bapp" title="지도"><svg class="lucide lucide-map-pin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg></div>
   </div>
 </div>`,
     css: `.bento-wrap { position: relative; display: inline-block; }
@@ -118,8 +118,9 @@ document.addEventListener('click', () => {
 <button class="btn btn-danger">삭제</button>
 <button class="btn btn-primary" disabled>비활성</button>`,
     css: `.btn {
-  padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600;
-  cursor: pointer; border: 1px solid transparent; font-family: inherit;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 74px; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: 1px solid transparent; font-family: inherit; text-align: center;
   transition: all .15s ease;
 }
 .btn-primary { background: #6366f1; color: #fff; }
@@ -250,7 +251,7 @@ document.addEventListener('click', () => {
     <div class="comment-body">
       <span class="comment-author">홍길동</span>
       <span class="comment-time">3분 전</span>
-      <div class="comment-text">정말 유익한 글이네요 👍</div>
+      <div class="comment-text">정말 유익한 글이네요 <svg class="lucide lucide-thumbs-up" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;color:#2563eb;"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h3"/><path d="M7 10V4.5a2.5 2.5 0 0 1 5 0V8"/></svg></div>
     </div>
   </div>
   <div class="comment">
@@ -335,8 +336,9 @@ document.addEventListener('click', () => {
     usecase: '국가/지역 선택 · 정렬 기준 변경',
     feature: '긴 옵션 목록의 단일 선택 / 화면 공간 절약',
     html: `<div class="dropdown" id="dd-demo">
-  <button class="dropdown-trigger">
+  <button class="dropdown-trigger" type="button">
     <span class="dd-value">한국</span>
+    <svg class="lucide lucide-chevron-down" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: auto; color: #94a3b8;"><path d="m6 9 6 6 6-6"/></svg>
   </button>
   <div class="dropdown-menu">
     <div class="dropdown-item">한국</div>
@@ -351,7 +353,6 @@ document.addEventListener('click', () => {
   padding: 8px 14px; font-size: 13px; cursor: pointer;
   display: flex; align-items: center; gap: 10px; min-width: 140px;
 }
-.dropdown-trigger::after { content: '▾'; margin-left: auto; color: #94a3b8; font-size: 10px; }
 .dropdown-menu {
   display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
   background: #fff; border: 1px solid #e2e8f0; border-radius: 6px;
@@ -392,7 +393,7 @@ document.addEventListener('click', () => {
       <span class="feed-name">@codevillain</span>
       <span class="feed-time">2분 전</span>
     </div>
-    <div class="feed-text">새 강의 영상이 업로드되었습니다 🎬</div>
+    <div class="feed-text">새 강의 영상이 업로드되었습니다 <svg class="lucide lucide-video" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;color:#6366f1;"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.934a.5.5 0 0 0-.777-.416L16 11"/><rect width="14" height="12" x="2" y="6" rx="2"/></svg></div>
   </div>
   <div class="feed-post">
     <div class="feed-post-head">
@@ -521,18 +522,18 @@ document.addEventListener('click', () => {
     usecase: '툴바 · 메뉴 항목 · 상태 표시',
     feature: '의미의 시각적 압축 / 텍스트 없는 액션 전달',
     html: `<div class="icon-row">
-  <button class="icon-btn">🏠</button>
-  <button class="icon-btn primary">🔍</button>
-  <button class="icon-btn success">✓</button>
-  <button class="icon-btn warn">⚠</button>
-  <button class="icon-btn">⚙️</button>
+  <button class="icon-btn" aria-label="홈"><svg class="lucide lucide-home" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></button>
+  <button class="icon-btn primary" aria-label="검색"><svg class="lucide lucide-search" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+  <button class="icon-btn success" aria-label="성공"><svg class="lucide lucide-check" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
+  <button class="icon-btn warn" aria-label="경고"><svg class="lucide lucide-alert-triangle" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg></button>
+  <button class="icon-btn" aria-label="설정"><svg class="lucide lucide-settings" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
 </div>`,
     css: `.icon-row { display: flex; gap: 14px; align-items: center; }
 .icon-btn {
   width: 36px; height: 36px; background: #fff;
   border: 1px solid #e2e8f0; border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 16px;
+  cursor: pointer; color: #334155; transition: background .15s;
 }
 .icon-btn:hover { background: #f1f5f9; }
 .icon-btn.primary { background: #6366f1; color: #fff; border-color: #6366f1; }
@@ -748,15 +749,15 @@ document.addEventListener('click', () => {
     feature: '비차단형 정보 전달 / 자동 사라짐 타이머',
     html: `<div class="noti-row">
   <div class="noti-bell">
-    🔔
+    <svg class="lucide lucide-bell" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
     <span class="noti-badge">3</span>
   </div>
   <div class="noti-toast">
-    <span class="ic">✅</span>
+    <span class="ic"><svg class="lucide lucide-check-circle-2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></span>
     <span>저장되었습니다</span>
   </div>
   <div class="noti-toast error">
-    <span class="ic">⚠️</span>
+    <span class="ic"><svg class="lucide lucide-alert-triangle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg></span>
     <span>네트워크 오류</span>
   </div>
 </div>`,
@@ -766,7 +767,7 @@ document.addEventListener('click', () => {
   border: 1px solid #e2e8f0; border-radius: 8px;
   width: 40px; height: 40px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 18px; cursor: pointer;
+  color: #334155; cursor: pointer;
 }
 .noti-badge {
   position: absolute; top: -4px; right: -4px;
@@ -1008,7 +1009,7 @@ document.addEventListener('click', () => {
     usecase: '사이트 검색 · 명령 팔레트(Cmd+K)',
     feature: '콘텐츠 검색 / 자동완성·최근 검색어 표시',
     html: `<div class="search-field" id="search-demo">
-  <span class="search-icon">🔍</span>
+  <span class="search-icon"><svg class="lucide lucide-search" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
   <input type="text" class="search-input" placeholder="검색어를 입력하세요">
   <div class="search-suggest">
     <div>Claude Code 강의</div>
@@ -1020,7 +1021,7 @@ document.addEventListener('click', () => {
     css: `.search-field { position: relative; width: 100%; max-width: 280px; }
 .search-icon {
   position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-  font-size: 13px; color: #94a3b8;
+  color: #94a3b8; display: flex; align-items: center; justify-content: center;
 }
 .search-input {
   width: 100%; border: 1px solid #e2e8f0; border-radius: 20px;
@@ -1058,10 +1059,10 @@ document.addEventListener('click', () => {
     feature: '상시 네비게이션 / 접기·고정 가능 패널',
     html: `<div class="sidebar-demo">
   <nav class="sidebar">
-    <div class="sidebar-item active" data-tab="home">🏠 홈</div>
-    <div class="sidebar-item" data-tab="inbox">📥 받은편지함</div>
-    <div class="sidebar-item" data-tab="sent">📤 보낸편지함</div>
-    <div class="sidebar-item" data-tab="trash">🗑 휴지통</div>
+    <div class="sidebar-item active" data-tab="home"><svg class="lucide lucide-home" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>홈</span></div>
+    <div class="sidebar-item" data-tab="inbox"><svg class="lucide lucide-inbox" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><span>받은편지함</span></div>
+    <div class="sidebar-item" data-tab="sent"><svg class="lucide lucide-send" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg><span>보낸편지함</span></div>
+    <div class="sidebar-item" data-tab="trash"><svg class="lucide lucide-trash-2" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg><span>휴지통</span></div>
   </nav>
   <div class="sidebar-content" id="sidebar-content">홈 화면입니다.</div>
 </div>`,
@@ -1077,6 +1078,7 @@ document.addEventListener('click', () => {
 .sidebar-item {
   padding: 6px 8px; font-size: 11px; color: #64748b;
   cursor: pointer; border-radius: 4px; font-weight: 500;
+  display: flex; align-items: center; gap: 6px;
 }
 .sidebar-item:hover { background: #e2e8f0; }
 .sidebar-item.active { background: #6366f1; color: #fff; }
@@ -1213,16 +1215,16 @@ document.addEventListener('click', () => {
     feature: '주요 섹션 즉시 전환 / 현재 위치 시각 표시',
     html: `<div class="tabbar" id="tabbar-demo">
   <button class="tabbar-btn active" data-tab="home">
-    <span class="ic">🏠</span><span>홈</span>
+    <span class="ic"><svg class="lucide lucide-home" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span>홈</span>
   </button>
   <button class="tabbar-btn" data-tab="search">
-    <span class="ic">🔍</span><span>검색</span>
+    <span class="ic"><svg class="lucide lucide-search" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span><span>검색</span>
   </button>
   <button class="tabbar-btn" data-tab="cart">
-    <span class="ic">🛒</span><span>장바구니</span>
+    <span class="ic"><svg class="lucide lucide-shopping-bag" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span><span>장바구니</span>
   </button>
   <button class="tabbar-btn" data-tab="me">
-    <span class="ic">👤</span><span>마이</span>
+    <span class="ic"><svg class="lucide lucide-user" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>마이</span>
   </button>
 </div>`,
     css: `.tabbar {
