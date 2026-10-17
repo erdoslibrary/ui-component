@@ -1,0 +1,1309 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>UI 엘리먼트 표본실</title>
+
+<style>
+/* ============================================================
+   DESIGN PLAN
+   Layout: fixed technical-index sidebar (left) + specimen viewer (right).
+   Content reads like a bound component catalog / lab reference card,
+   not a dashboard — numbered plates, ruled tables, no rounded "cards everywhere".
+   ============================================================ */
+:root{
+  --paper:      #eef0ea;   /* cool paper, not warm cream */
+  --paper-raised:#f8f9f4;
+  --ink:        #15170f;   /* near-black, slight green bias */
+  --ink-soft:   #51564a;
+  --line:       #c7cab9;
+  --line-strong:#15170f;
+  --signal:     #c44a1f;   /* burnt signal-orange, used sparingly */
+  --moss:       #3c5b3f;   /* secondary accent — status / ok */
+  --code-bg:    #15170f;
+  --code-fg:    #eef0ea;
+  --font-display: 'Fjalla One', 'Archivo Narrow', Impact, sans-serif;
+  --font-body:    'IBM Plex Sans', 'Segoe UI', sans-serif;
+  --font-mono:    'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+  color-scheme: light;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:15px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--signal);color:var(--paper)}
+img{max-width:100%}
+
+.shell{
+  display:flex;
+  min-height:100%;
+  padding-left:max(0px, env(safe-area-inset-left,0px));
+  padding-right:max(0px, env(safe-area-inset-right,0px));
+}
+
+/* ---------- SIDEBAR / INDEX ---------- */
+.index{
+  width:300px;
+  flex:0 0 300px;
+  border-right:2px solid var(--line-strong);
+  background:var(--paper-raised);
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+.index-head{
+  padding:22px 20px 16px;
+  border-bottom:2px solid var(--line-strong);
+}
+.index-head .kicker{
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:.14em;
+  color:var(--signal);
+  text-transform:uppercase;
+}
+.index-head h1{
+  font-family:var(--font-display);
+  font-weight:400;
+  font-size:30px;
+  line-height:1.02;
+  letter-spacing:.01em;
+  margin:6px 0 8px;
+  text-wrap:balance;
+}
+.index-head p{
+  margin:0;
+  font-size:12.5px;
+  color:var(--ink-soft);
+  max-width:46ch;
+}
+.index-scroll{
+  flex:1;
+  overflow-y:auto;
+  padding:4px 0 24px;
+}
+.cat-group{margin-top:14px}
+.cat-group:first-child{margin-top:8px}
+.cat-label{
+  font-family:var(--font-mono);
+  font-size:10.5px;
+  letter-spacing:.12em;
+  color:var(--ink-soft);
+  text-transform:uppercase;
+  padding:4px 20px;
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+}
+.cat-count{color:var(--line);}
+.elem-btn{
+  width:100%;
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+  padding:7px 20px;
+  background:none;
+  border:none;
+  border-left:3px solid transparent;
+  text-align:left;
+  cursor:pointer;
+  font-family:var(--font-body);
+  font-size:13.5px;
+  color:var(--ink);
+}
+.elem-btn:hover{background:#e3e6da}
+.elem-btn .n{
+  font-family:var(--font-mono);
+  font-size:11px;
+  color:var(--ink-soft);
+  min-width:20px;
+}
+.elem-btn.active{
+  background:var(--ink);
+  color:var(--paper);
+  border-left-color:var(--signal);
+}
+.elem-btn.active .n{color:#9fa88f}
+
+/* ---------- MAIN / SPECIMEN VIEWER ---------- */
+.viewer{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+}
+.viewer-head{
+  padding:26px max(28px, env(safe-area-inset-right,0px)) 18px 28px;
+  border-bottom:2px solid var(--line-strong);
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  flex-wrap:wrap;
+}
+.viewer-head .titles .plate{
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:.12em;
+  color:var(--signal);
+}
+.viewer-head h2{
+  font-family:var(--font-display);
+  font-weight:400;
+  font-size:34px;
+  margin:4px 0 8px;
+  letter-spacing:.01em;
+}
+.viewer-head .desc{
+  max-width:62ch;
+  color:var(--ink-soft);
+  font-size:14px;
+}
+.viewer-head .meta{
+  font-family:var(--font-mono);
+  font-size:11px;
+  color:var(--ink-soft);
+  text-align:right;
+  white-space:nowrap;
+  padding-top:4px;
+}
+.viewer-head .meta b{color:var(--ink);font-weight:600}
+
+.stage-wrap{
+  padding:24px max(28px, env(safe-area-inset-right,0px)) 10px 28px;
+}
+.stage-label{
+  font-family:var(--font-mono);
+  font-size:10.5px;
+  letter-spacing:.1em;
+  color:var(--ink-soft);
+  text-transform:uppercase;
+  margin-bottom:8px;
+  display:flex;
+  justify-content:space-between;
+}
+.stage{
+  border:2px solid var(--line-strong);
+  background:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px),
+    var(--paper-raised);
+  background-size:16px 16px;
+  min-height:240px;
+  position:relative;
+}
+.stage iframe{
+  width:100%;
+  height:240px;
+  border:none;
+  display:block;
+  background:transparent;
+}
+.stage::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  box-shadow:inset 0 0 0 1px rgba(21,23,15,.04);
+}
+
+.source-wrap{
+  padding:22px max(28px, env(safe-area-inset-right,0px)) 40px 28px;
+}
+.tabs{
+  display:flex;
+  gap:0;
+  border-bottom:2px solid var(--line-strong);
+}
+.tab-btn{
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:.06em;
+  padding:9px 18px;
+  background:var(--paper);
+  border:2px solid var(--line-strong);
+  border-bottom:none;
+  margin-right:-2px;
+  margin-bottom:-2px;
+  cursor:pointer;
+  color:var(--ink-soft);
+}
+.tab-btn.active{
+  background:var(--code-bg);
+  color:var(--code-fg);
+  position:relative;
+  z-index:1;
+}
+.code-panel{
+  background:var(--code-bg);
+  color:var(--code-fg);
+  border:2px solid var(--line-strong);
+  position:relative;
+}
+.code-panel pre{
+  margin:0;
+  padding:20px 22px;
+  overflow-x:auto;
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  line-height:1.65;
+  white-space:pre;
+}
+.code-panel[hidden]{display:none}
+.copy-btn{
+  position:absolute;
+  top:10px;
+  right:12px;
+  font-family:var(--font-mono);
+  font-size:10.5px;
+  letter-spacing:.08em;
+  background:transparent;
+  border:1px solid #454a3b;
+  color:#c6cab6;
+  padding:5px 10px;
+  cursor:pointer;
+  text-transform:uppercase;
+}
+.copy-btn:hover{border-color:var(--signal);color:var(--signal)}
+
+/* code token coloring (manual, static) */
+.tag{color:#d08b5f}
+.attr{color:#9fc39a}
+.str{color:#e0b96d}
+.com{color:#6f7566;font-style:italic}
+.kw{color:#e0836b}
+.prop{color:#9fc8c7}
+
+footer.credit{
+  padding:16px 28px 28px;
+  font-family:var(--font-mono);
+  font-size:10.5px;
+  color:var(--ink-soft);
+  border-top:1px solid var(--line);
+}
+
+@media (max-width: 860px){
+  .shell{flex-direction:column}
+  .index{
+    width:100%;
+    flex:0 0 auto;
+    border-right:none;
+    border-bottom:2px solid var(--line-strong);
+    max-height:40vh;
+  }
+  .viewer-head h2{font-size:26px}
+  .viewer-head{flex-direction:column}
+  .viewer-head .meta{text-align:left}
+}
+body,.index,.viewer-head,.stage-wrap,.source-wrap{
+  padding-left:max(16px, env(safe-area-inset-left,0px));
+}
+.shell{padding-left:0}
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<div class="shell">
+  <aside class="index">
+    <div class="index-head">
+      <div class="kicker">FRONTEND REFERENCE · NO. 001–032</div>
+      <h1>UI 엘리먼트<br>표본실</h1>
+      <p>CareerFoundry의 32가지 UI 엘리먼트 사전을 바탕으로 제작한 프론트엔드 포트폴리오 데모. 좌측에서 항목을 선택하면 우측에 미리보기와 소스가 표시됩니다.</p>
+    </div>
+    <nav class="index-scroll" id="indexScroll"></nav>
+  </aside>
+
+  <main class="viewer">
+    <div class="viewer-head">
+      <div class="titles">
+        <div class="plate" id="plateNo">PLATE 01</div>
+        <h2 id="elName">—</h2>
+        <div class="desc" id="elDesc"></div>
+      </div>
+      <div class="meta">
+        <div>CATEGORY<br><b id="elCat">—</b></div>
+      </div>
+    </div>
+
+    <div class="stage-wrap">
+      <div class="stage-label"><span>LIVE PREVIEW</span><span id="stageTag">rendered in isolated frame</span></div>
+      <div class="stage"><iframe id="previewFrame" title="component preview" sandbox="allow-scripts"></iframe></div>
+    </div>
+
+    <div class="source-wrap">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="html">HTML</button>
+        <button class="tab-btn" data-tab="css">CSS</button>
+        <button class="tab-btn" data-tab="js">JS</button>
+      </div>
+      <div class="code-panel">
+        <button class="copy-btn" id="copyBtn">COPY</button>
+        <pre id="codeHtml"><code></code></pre>
+        <pre id="codeCss" hidden><code></code></pre>
+        <pre id="codeJs" hidden><code></code></pre>
+      </div>
+    </div>
+
+    <footer class="credit">UI ELEMENT GLOSSARY REFERENCE — CAREERFOUNDRY · DEMO BUILD BY 수목원</footer>
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   DATA — 32 UI elements, grouped per the glossary's own 4 categories
+   ============================================================ */
+var CATS = [
+  {key:'input',     label:'입력 컨트롤 · INPUT CONTROLS'},
+  {key:'nav',        label:'내비게이션 · NAVIGATIONAL'},
+  {key:'info',       label:'정보 표시 · INFORMATIONAL'},
+  {key:'container',  label:'컨테이너 · CONTAINERS'}
+];
+
+var ITEMS = [
+
+{n:1, key:'accordion', cat:'container', name:'Accordion', desc:'클릭 시 콘텐츠 섹션을 펼치고 접어 제한된 공간에 많은 정보를 담는 엘리먼트.',
+ html:
+'<div class="accordion">\n' +
+'  <div class="acc-item">\n' +
+'    <button class="acc-trigger" aria-expanded="false">\n' +
+'      <span>01 — 배송 정책</span>\n' +
+'      <span class="acc-icon">+</span>\n' +
+'    </button>\n' +
+'    <div class="acc-panel">\n' +
+'      <p>주문 후 평균 2~3영업일 이내 출고되며, 도서산간 지역은 1~2일 추가될 수 있습니다.</p>\n' +
+'    </div>\n' +
+'  </div>\n' +
+'  <div class="acc-item">\n' +
+'    <button class="acc-trigger" aria-expanded="false">\n' +
+'      <span>02 — 환불 규정</span>\n' +
+'      <span class="acc-icon">+</span>\n' +
+'    </button>\n' +
+'    <div class="acc-panel">\n' +
+'      <p>제품 수령 후 7일 이내 미개봉 상태에서 환불 신청이 가능합니다.</p>\n' +
+'    </div>\n' +
+'  </div>\n' +
+'  <div class="acc-item">\n' +
+'    <button class="acc-trigger" aria-expanded="false">\n' +
+'      <span>03 — 고객센터</span>\n' +
+'      <span class="acc-icon">+</span>\n' +
+'    </button>\n' +
+'    <div class="acc-panel">\n' +
+'      <p>평일 10:00–18:00 운영되며, 주말 및 공휴일은 휴무입니다.</p>\n' +
+'    </div>\n' +
+'  </div>\n' +
+'</div>',
+ css:
+'.accordion{ border-top:1px solid #d8dacd; max-width:440px; }\n' +
+'.acc-item{ border-bottom:1px solid #d8dacd; }\n' +
+'.acc-trigger{\n' +
+'  width:100%; display:flex; justify-content:space-between; align-items:center;\n' +
+'  padding:14px 4px; background:none; border:none; cursor:pointer;\n' +
+'  font-size:14px; text-align:left; color:#15170f;\n' +
+'}\n' +
+'.acc-icon{ font-size:18px; transition:transform .2s ease; color:#c44a1f; }\n' +
+'.acc-trigger[aria-expanded="true"] .acc-icon{ transform:rotate(45deg); }\n' +
+'.acc-panel{\n' +
+'  max-height:0; overflow:hidden; transition:max-height .25s ease;\n' +
+'}\n' +
+'.acc-panel p{ margin:0 4px 16px; font-size:13px; color:#51564a; line-height:1.6; }',
+ js:
+'document.querySelectorAll(".acc-trigger").forEach(function(btn){\n' +
+'  btn.addEventListener("click", function(){\n' +
+'    var open = btn.getAttribute("aria-expanded") === "true";\n' +
+'    var panel = btn.nextElementSibling;\n' +
+'    btn.setAttribute("aria-expanded", String(!open));\n' +
+'    panel.style.maxHeight = open ? "0px" : panel.scrollHeight + "px";\n' +
+'  });\n' +
+'});'},
+
+{n:2, key:'bento', cat:'nav', name:'Bento Menu', desc:'도시락(벤토) 상자처럼 여러 서비스를 격자형 타일로 모아 보여주는 메뉴.',
+ html:
+'<button class="bento-trigger" id="bentoBtn">⠿ 서비스</button>\n' +
+'<div class="bento-panel" id="bentoPanel" hidden>\n' +
+'  <a class="bento-tile" href="#">메일</a>\n' +
+'  <a class="bento-tile" href="#">캘린더</a>\n' +
+'  <a class="bento-tile" href="#">드라이브</a>\n' +
+'  <a class="bento-tile" href="#">문서</a>\n' +
+'  <a class="bento-tile" href="#">미팅</a>\n' +
+'  <a class="bento-tile" href="#">연락처</a>\n' +
+'</div>',
+ css:
+'.bento-trigger{\n' +
+'  font-family:inherit; font-size:13px; padding:9px 14px;\n' +
+'  background:#15170f; color:#eef0ea; border:none; cursor:pointer;\n' +
+'}\n' +
+'.bento-panel{\n' +
+'  margin-top:8px; display:grid; grid-template-columns:repeat(3,64px);\n' +
+'  gap:6px; width:fit-content;\n' +
+'}\n' +
+'.bento-tile{\n' +
+'  display:flex; align-items:center; justify-content:center; text-align:center;\n' +
+'  height:64px; background:#f8f9f4; border:1px solid #c7cab9;\n' +
+'  color:#15170f; text-decoration:none; font-size:11.5px;\n' +
+'}\n' +
+'.bento-tile:hover{ border-color:#c44a1f; color:#c44a1f; }',
+ js:
+'var b = document.getElementById("bentoBtn");\n' +
+'var p = document.getElementById("bentoPanel");\n' +
+'b.addEventListener("click", function(){ p.hidden = !p.hidden; });'},
+
+{n:3, key:'breadcrumb', cat:'nav', name:'Breadcrumb', desc:'사용자가 사이트 내 현재 위치를 파악하고 상위 단계로 이동할 수 있게 돕는 경로 표시.',
+ html:
+'<nav class="crumb" aria-label="Breadcrumb">\n' +
+'  <a href="#">홈</a>\n' +
+'  <span>/</span>\n' +
+'  <a href="#">로보틱스</a>\n' +
+'  <span>/</span>\n' +
+'  <a href="#">7축 그리퍼</a>\n' +
+'  <span>/</span>\n' +
+'  <span aria-current="page">캘리브레이션 로그</span>\n' +
+'</nav>',
+ css:
+'.crumb{ font-size:13px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }\n' +
+'.crumb a{ color:#51564a; text-decoration:none; border-bottom:1px solid transparent; }\n' +
+'.crumb a:hover{ color:#c44a1f; border-color:#c44a1f; }\n' +
+'.crumb span{ color:#9fa88f; }\n' +
+'.crumb [aria-current="page"]{ color:#15170f; font-weight:600; }',
+ js:''},
+
+{n:4, key:'button', cat:'input', name:'Button', desc:'사용자가 특정 동작(제출, 취소 등)을 수행할 수 있음을 알려주는 핵심 입력 엘리먼트.',
+ html:
+'<div class="btn-row">\n' +
+'  <button class="btn btn-primary">제출하기</button>\n' +
+'  <button class="btn btn-ghost">취소</button>\n' +
+'  <button class="btn btn-outline" disabled>비활성화</button>\n' +
+'</div>',
+ css:
+'.btn-row{ display:flex; gap:10px; flex-wrap:wrap; }\n' +
+'.btn{\n' +
+'  font-family:inherit; font-size:13.5px; padding:10px 18px;\n' +
+'  border:2px solid #15170f; cursor:pointer; transition:transform .1s ease;\n' +
+'}\n' +
+'.btn:active{ transform:translateY(1px); }\n' +
+'.btn-primary{ background:#15170f; color:#eef0ea; }\n' +
+'.btn-primary:hover{ background:#c44a1f; border-color:#c44a1f; }\n' +
+'.btn-ghost{ background:transparent; color:#15170f; }\n' +
+'.btn-ghost:hover{ background:#e3e6da; }\n' +
+'.btn-outline{ background:transparent; color:#9fa88f; border-color:#c7cab9; cursor:not-allowed; }',
+ js:''},
+
+{n:5, key:'card', cat:'container', name:'Card', desc:'이미지·텍스트·버튼 등 서로 다른 콘텐츠를 하나의 모듈로 묶어 나란히 배치하는 컨테이너.',
+ html:
+'<article class="ui-card">\n' +
+'  <div class="ui-card-thumb">DXL · XL430</div>\n' +
+'  <div class="ui-card-body">\n' +
+'    <h3>3축 핑거 모듈</h3>\n' +
+'    <p>7-DoF 로봇 핸드용 핑거 유닛 설계 도면 v2.</p>\n' +
+'    <button class="ui-card-cta">자세히 보기 →</button>\n' +
+'  </div>\n' +
+'</article>',
+ css:
+'.ui-card{\n' +
+'  width:260px; border:1px solid #c7cab9; background:#f8f9f4;\n' +
+'}\n' +
+'.ui-card-thumb{\n' +
+'  height:90px; background:repeating-linear-gradient(45deg,#15170f,#15170f 8px,#2a2d1f 8px,#2a2d1f 16px);\n' +
+'  color:#eef0ea; display:flex; align-items:center; justify-content:center;\n' +
+'  font-family:monospace; font-size:11px; letter-spacing:.08em;\n' +
+'}\n' +
+'.ui-card-body{ padding:14px 16px; }\n' +
+'.ui-card-body h3{ margin:0 0 6px; font-size:15px; }\n' +
+'.ui-card-body p{ margin:0 0 12px; font-size:12.5px; color:#51564a; }\n' +
+'.ui-card-cta{\n' +
+'  background:none; border:none; padding:0; color:#c44a1f;\n' +
+'  font-size:12.5px; font-weight:600; cursor:pointer;\n' +
+'}',
+ js:''},
+
+{n:6, key:'carousel', cat:'container', name:'Carousel', desc:'이미지나 카드 등 여러 콘텐츠 묶음을 같은 영역에서 좌우로 넘겨가며 보여주는 엘리먼트.',
+ html:
+'<div class="carousel">\n' +
+'  <div class="car-track" id="carTrack">\n' +
+'    <div class="car-slide">SLIDE 01</div>\n' +
+'    <div class="car-slide">SLIDE 02</div>\n' +
+'    <div class="car-slide">SLIDE 03</div>\n' +
+'  </div>\n' +
+'  <div class="car-controls">\n' +
+'    <button id="carPrev">←</button>\n' +
+'    <span id="carDots"></span>\n' +
+'    <button id="carNext">→</button>\n' +
+'  </div>\n' +
+'</div>',
+ css:
+'.carousel{ width:280px; }\n' +
+'.car-track{\n' +
+'  display:flex; overflow:hidden; border:1px solid #c7cab9;\n' +
+'}\n' +
+'.car-slide{\n' +
+'  min-width:100%; height:110px; display:flex; align-items:center; justify-content:center;\n' +
+'  font-family:monospace; font-size:13px; background:#f8f9f4;\n' +
+'  transition:transform .3s ease;\n' +
+'}\n' +
+'.car-controls{\n' +
+'  display:flex; align-items:center; justify-content:space-between;\n' +
+'  margin-top:8px;\n' +
+'}\n' +
+'.car-controls button{\n' +
+'  background:#15170f; color:#eef0ea; border:none; width:28px; height:28px; cursor:pointer;\n' +
+'}\n' +
+'#carDots{ font-size:11px; letter-spacing:.2em; color:#9fa88f; }\n' +
+'#carDots .active{ color:#c44a1f; }',
+ js:
+'var slides = document.querySelectorAll(".car-slide");\n' +
+'var track = document.getElementById("carTrack");\n' +
+'var dotsEl = document.getElementById("carDots");\n' +
+'var idx = 0;\n' +
+'function renderDots(){\n' +
+'  var out = "";\n' +
+'  for (var i=0;i<slides.length;i++){ out += (i===idx ? "<span class=active>●</span> " : "<span>○</span> "); }\n' +
+'  dotsEl.innerHTML = out;\n' +
+'}\n' +
+'function go(n){\n' +
+'  idx = (n + slides.length) % slides.length;\n' +
+'  track.style.transform = "translateX(" + (-100*idx) + "%)";\n' +
+'  renderDots();\n' +
+'}\n' +
+'document.getElementById("carPrev").addEventListener("click", function(){ go(idx-1); });\n' +
+'document.getElementById("carNext").addEventListener("click", function(){ go(idx+1); });\n' +
+'renderDots();'},
+
+{n:7, key:'checkbox', cat:'input', name:'Checkbox', desc:'목록에서 하나 이상의 옵션을 독립적으로 선택할 수 있게 하는 작은 사각 박스.',
+ html:
+'<fieldset class="chk-group">\n' +
+'  <legend>알림 수신 항목</legend>\n' +
+'  <label class="chk"><input type="checkbox" checked> 주문 확인</label>\n' +
+'  <label class="chk"><input type="checkbox"> 마케팅 소식</label>\n' +
+'  <label class="chk"><input type="checkbox" checked> 보안 경고</label>\n' +
+'</fieldset>',
+ css:
+'.chk-group{ border:none; padding:0; margin:0; }\n' +
+'.chk-group legend{ font-size:12px; color:#51564a; padding:0 0 10px; }\n' +
+'.chk{ display:flex; align-items:center; gap:8px; font-size:13.5px; padding:5px 0; cursor:pointer; }\n' +
+'.chk input{ width:16px; height:16px; accent-color:#c44a1f; cursor:pointer; }',
+ js:''},
+
+{n:8, key:'comment', cat:'info', name:'Comment', desc:'사용자가 입력한 내용을 시간 순서대로 보여주는 엘리먼트, 블로그·SNS에서 흔히 사용.',
+ html:
+'<div class="comments">\n' +
+'  <div class="comment">\n' +
+'    <div class="c-avatar">수목</div>\n' +
+'    <div class="c-body">\n' +
+'      <div class="c-head"><b>수목원</b><span>3분 전</span></div>\n' +
+'      <p>그리퍼 토크 값 로그 공유 감사합니다.</p>\n' +
+'    </div>\n' +
+'  </div>\n' +
+'  <div class="comment">\n' +
+'    <div class="c-avatar">JK</div>\n' +
+'    <div class="c-body">\n' +
+'      <div class="c-head"><b>JK</b><span>1시간 전</span></div>\n' +
+'      <p>XL430 캘리브레이션 수치 다시 확인해볼게요.</p>\n' +
+'    </div>\n' +
+'  </div>\n' +
+'</div>',
+ css:
+'.comments{ display:flex; flex-direction:column; gap:14px; max-width:360px; }\n' +
+'.comment{ display:flex; gap:10px; }\n' +
+'.c-avatar{\n' +
+'  width:34px; height:34px; flex:none; background:#15170f; color:#eef0ea;\n' +
+'  display:flex; align-items:center; justify-content:center;\n' +
+'  font-size:10.5px; font-family:monospace;\n' +
+'}\n' +
+'.c-head{ display:flex; gap:8px; align-items:baseline; font-size:12.5px; }\n' +
+'.c-head span{ color:#9fa88f; font-size:11px; }\n' +
+'.c-body p{ margin:3px 0 0; font-size:13px; color:#2d2f26; }',
+ js:''},
+
+{n:9, key:'doner', cat:'nav', name:'Döner Menu', desc:'길이가 다른 3개의 가로선으로 구성된 메뉴로, 필터 그룹을 상징.',
+ html:
+'<button class="doner-btn" id="donerBtn">\n' +
+'  <span class="doner-line l1"></span>\n' +
+'  <span class="doner-line l2"></span>\n' +
+'  <span class="doner-line l3"></span>\n' +
+'</button>\n' +
+'<div class="doner-panel" id="donerPanel" hidden>\n' +
+'  <p>가격 · 거리 · 평점 순 필터</p>\n' +
+'</div>',
+ css:
+'.doner-btn{\n' +
+'  display:flex; flex-direction:column; gap:4px; background:none; border:none;\n' +
+'  padding:10px; cursor:pointer;\n' +
+'}\n' +
+'.doner-line{ height:2px; background:#15170f; display:block; }\n' +
+'.l1{ width:22px; } .l2{ width:16px; } .l3{ width:10px; }\n' +
+'.doner-btn:hover .doner-line{ background:#c44a1f; }\n' +
+'.doner-panel{\n' +
+'  margin-top:6px; padding:10px 14px; border:1px solid #c7cab9; background:#f8f9f4;\n' +
+'  font-size:12.5px; width:fit-content;\n' +
+'}',
+ js:
+'var d = document.getElementById("donerBtn");\n' +
+'var p = document.getElementById("donerPanel");\n' +
+'d.addEventListener("click", function(){ p.hidden = !p.hidden; });'},
+
+{n:10, key:'dropdown', cat:'input', name:'Dropdown', desc:'클릭 시 목록이 펼쳐지며 그중 하나의 항목을 선택할 수 있게 하는 엘리먼트.',
+ html:
+'<div class="dd-wrap">\n' +
+'  <label for="ddSelect">정렬 기준</label>\n' +
+'  <select id="ddSelect" class="dd-select">\n' +
+'    <option>최신순</option>\n' +
+'    <option>인기순</option>\n' +
+'    <option>가격 낮은순</option>\n' +
+'    <option>가격 높은순</option>\n' +
+'  </select>\n' +
+'</div>',
+ css:
+'.dd-wrap{ display:flex; flex-direction:column; gap:6px; width:200px; }\n' +
+'.dd-wrap label{ font-size:11.5px; color:#51564a; }\n' +
+'.dd-select{\n' +
+'  font-family:inherit; font-size:13.5px; padding:9px 10px;\n' +
+'  border:2px solid #15170f; background:#f8f9f4; color:#15170f;\n' +
+'}\n' +
+'.dd-select:focus{ outline:2px solid #c44a1f; outline-offset:2px; }',
+ js:''},
+
+{n:11, key:'feed', cat:'info', name:'Feed', desc:'사용자 활동을 시간 순으로 보여주는 엘리먼트. 텍스트부터 이미지, 영상까지 다양한 형태를 포함.',
+ html:
+'<ul class="feed">\n' +
+'  <li><b>@erdoslibrary</b> ft_irc 프로젝트 통과 <span>10m</span></li>\n' +
+'  <li><b>@sound_crew</b> XR18 EQ 프리셋 업로드 <span>42m</span></li>\n' +
+'  <li><b>@42gyeongsan</b> 해커톤 결과 발표 <span>2h</span></li>\n' +
+'</ul>',
+ css:
+'.feed{ list-style:none; margin:0; padding:0; max-width:360px; border-top:1px solid #c7cab9; }\n' +
+'.feed li{\n' +
+'  padding:11px 2px; border-bottom:1px solid #c7cab9; font-size:13px;\n' +
+'  display:flex; justify-content:space-between; gap:10px;\n' +
+'}\n' +
+'.feed b{ color:#15170f; }\n' +
+'.feed span{ color:#9fa88f; font-size:11px; font-family:monospace; white-space:nowrap; }',
+ js:''},
+
+{n:12, key:'form', cat:'input', name:'Form', desc:'서로 연관된 정보를 입력받아 시스템에 제출하도록 돕는 입력 묶음.',
+ html:
+'<form class="demo-form" id="demoForm">\n' +
+'  <label>이름<input type="text" placeholder="홍길동" required></label>\n' +
+'  <label>이메일<input type="email" placeholder="you@mail.com" required></label>\n' +
+'  <button type="submit" class="btn btn-primary">가입하기</button>\n' +
+'  <p class="form-status" id="formStatus"></p>\n' +
+'</form>',
+ css:
+'.demo-form{ display:flex; flex-direction:column; gap:12px; width:240px; }\n' +
+'.demo-form label{ display:flex; flex-direction:column; gap:5px; font-size:11.5px; color:#51564a; }\n' +
+'.demo-form input{\n' +
+'  font-family:inherit; font-size:13.5px; padding:9px 10px; border:2px solid #15170f;\n' +
+'  background:#f8f9f4; color:#15170f;\n' +
+'}\n' +
+'.btn-primary{\n' +
+'  font-family:inherit; font-size:13.5px; padding:10px 18px; border:2px solid #15170f;\n' +
+'  background:#15170f; color:#eef0ea; cursor:pointer;\n' +
+'}\n' +
+'.form-status{ margin:0; font-size:12px; color:#3c5b3f; min-height:1em; }',
+ js:
+'document.getElementById("demoForm").addEventListener("submit", function(e){\n' +
+'  e.preventDefault();\n' +
+'  document.getElementById("formStatus").textContent = "제출 완료 — 확인 메일을 보냈습니다.";\n' +
+'});'},
+
+{n:13, key:'hamburger', cat:'nav', name:'Hamburger Menu', desc:'길이가 같은 세 개의 가로선으로, 주로 앱 좌상단에서 내비게이션 링크 그룹을 엽니다.',
+ html:
+'<button class="burger-btn" id="burgerBtn" aria-label="메뉴 열기">\n' +
+'  <span></span><span></span><span></span>\n' +
+'</button>\n' +
+'<nav class="burger-panel" id="burgerPanel" hidden>\n' +
+'  <a href="#">홈</a><a href="#">프로젝트</a><a href="#">팀 소개</a><a href="#">문의</a>\n' +
+'</nav>',
+ css:
+'.burger-btn{\n' +
+'  width:36px; height:30px; display:flex; flex-direction:column; justify-content:space-between;\n' +
+'  background:none; border:none; cursor:pointer; padding:4px;\n' +
+'}\n' +
+'.burger-btn span{ height:2px; background:#15170f; width:100%; }\n' +
+'.burger-btn:hover span{ background:#c44a1f; }\n' +
+'.burger-panel{\n' +
+'  margin-top:8px; display:flex; flex-direction:column; width:160px;\n' +
+'  border:1px solid #c7cab9; background:#f8f9f4;\n' +
+'}\n' +
+'.burger-panel a{\n' +
+'  padding:10px 14px; font-size:13px; color:#15170f; text-decoration:none;\n' +
+'  border-bottom:1px solid #c7cab9;\n' +
+'}\n' +
+'.burger-panel a:last-child{ border-bottom:none; }\n' +
+'.burger-panel a:hover{ background:#e3e6da; color:#c44a1f; }',
+ js:
+'var bb = document.getElementById("burgerBtn");\n' +
+'var bp = document.getElementById("burgerPanel");\n' +
+'bb.addEventListener("click", function(){ bp.hidden = !bp.hidden; });'},
+
+{n:14, key:'icon', cat:'info', name:'Icon', desc:'콘텐츠를 전달하거나 특정 행동을 유발하는 데 쓰이는 작은 이미지 기호.',
+ html:
+'<div class="icon-grid">\n' +
+'  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" fill="none"/></svg>\n' +
+'  <svg viewBox="0 0 24 24"><path d="M4 12h16M12 4v16" stroke="currentColor" stroke-width="2"/></svg>\n' +
+'  <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"/></svg>\n' +
+'  <svg viewBox="0 0 24 24"><path d="M12 3l9 18H3z" fill="none" stroke="currentColor" stroke-width="2"/></svg>\n' +
+'</div>',
+ css:
+'.icon-grid{ display:flex; gap:16px; color:#15170f; }\n' +
+'.icon-grid svg{ width:30px; height:30px; }\n' +
+'.icon-grid svg:hover{ color:#c44a1f; }',
+ js:''},
+
+{n:15, key:'input-field', cat:'input', name:'Input Field', desc:'사용자가 시스템에 내용을 입력할 수 있는 영역. 폼뿐 아니라 검색창에도 사용됩니다.',
+ html:
+'<label class="field">\n' +
+'  <span>프로젝트명</span>\n' +
+'  <input type="text" value="7-DoF 로봇 핸드" maxlength="24">\n' +
+'  <span class="field-hint" id="fieldHint">18 / 24</span>\n' +
+'</label>',
+ css:
+'.field{ display:flex; flex-direction:column; gap:5px; width:220px; }\n' +
+'.field span{ font-size:11.5px; color:#51564a; }\n' +
+'.field input{\n' +
+'  font-family:inherit; font-size:14px; padding:10px 12px; border:2px solid #15170f;\n' +
+'  background:#f8f9f4; color:#15170f;\n' +
+'}\n' +
+'.field input:focus{ outline:none; border-color:#c44a1f; }\n' +
+'.field-hint{ text-align:right; font-family:monospace; font-size:10.5px; color:#9fa88f; }',
+ js:
+'var inp = document.querySelector(".field input");\n' +
+'var hint = document.getElementById("fieldHint");\n' +
+'inp.addEventListener("input", function(){\n' +
+'  hint.textContent = inp.value.length + " / " + inp.maxLength;\n' +
+'});'},
+
+{n:16, key:'kebab', cat:'nav', name:'Kebab Menu', desc:'세로로 놓인 세 개의 점으로, 그룹화된 옵션 세트를 상징하는 메뉴.',
+ html:
+'<div class="kebab-wrap">\n' +
+'  <button class="kebab-btn" id="kebabBtn">⋮</button>\n' +
+'  <div class="kebab-panel" id="kebabPanel" hidden>\n' +
+'    <button>수정</button>\n' +
+'    <button>공유</button>\n' +
+'    <button class="danger">삭제</button>\n' +
+'  </div>\n' +
+'</div>',
+ css:
+'.kebab-wrap{ position:relative; width:fit-content; }\n' +
+'.kebab-btn{\n' +
+'  font-size:20px; background:none; border:1px solid #c7cab9; width:34px; height:34px;\n' +
+'  cursor:pointer; color:#15170f; line-height:0;\n' +
+'}\n' +
+'.kebab-panel{\n' +
+'  position:absolute; top:38px; left:0; display:flex; flex-direction:column;\n' +
+'  width:120px; border:1px solid #c7cab9; background:#f8f9f4; z-index:2;\n' +
+'}\n' +
+'.kebab-panel button{\n' +
+'  background:none; border:none; text-align:left; padding:9px 12px; font-size:12.5px;\n' +
+'  cursor:pointer; color:#15170f; border-bottom:1px solid #c7cab9;\n' +
+'}\n' +
+'.kebab-panel button:last-child{ border-bottom:none; }\n' +
+'.kebab-panel .danger{ color:#c44a1f; }\n' +
+'.kebab-panel button:hover{ background:#e3e6da; }',
+ js:
+'var kb = document.getElementById("kebabBtn");\n' +
+'var kp = document.getElementById("kebabPanel");\n' +
+'kb.addEventListener("click", function(){ kp.hidden = !kp.hidden; });'},
+
+{n:17, key:'loader', cat:'info', name:'Loader', desc:'시스템이 백그라운드에서 작업을 처리 중이니 기다려 달라고 알려주는 엘리먼트.',
+ html:
+'<div class="loader-row">\n' +
+'  <span class="loader-ring"></span>\n' +
+'  <span class="loader-label">처리 중…</span>\n' +
+'</div>',
+ css:
+'.loader-row{ display:flex; align-items:center; gap:12px; }\n' +
+'.loader-ring{\n' +
+'  width:26px; height:26px; border:3px solid #c7cab9; border-top-color:#c44a1f;\n' +
+'  border-radius:50%; animation:spin .8s linear infinite;\n' +
+'}\n' +
+'.loader-label{ font-family:monospace; font-size:12px; color:#51564a; }\n' +
+'@keyframes spin{ to{ transform:rotate(360deg); } }\n' +
+'@media (prefers-reduced-motion: reduce){ .loader-ring{ animation-duration:2.4s; } }',
+ js:''},
+
+{n:18, key:'meatballs', cat:'nav', name:'Meatballs Menu', desc:'가로로 놓인 세 개의 점으로, 더 많은 옵션이 있음을 알리는 메뉴.',
+ html:
+'<div class="meatball-wrap">\n' +
+'  <button class="meatball-btn" id="meatBtn">●&nbsp;●&nbsp;●</button>\n' +
+'  <div class="meatball-panel" id="meatPanel" hidden>\n' +
+'    <button>핀 고정</button>\n' +
+'    <button>보관</button>\n' +
+'    <button>신고</button>\n' +
+'  </div>\n' +
+'</div>',
+ css:
+'.meatball-wrap{ position:relative; width:fit-content; }\n' +
+'.meatball-btn{\n' +
+'  background:none; border:1px solid #c7cab9; padding:8px 12px; font-size:8px;\n' +
+'  letter-spacing:3px; color:#15170f; cursor:pointer;\n' +
+'}\n' +
+'.meatball-panel{\n' +
+'  position:absolute; top:38px; right:0; display:flex; flex-direction:column;\n' +
+'  width:110px; border:1px solid #c7cab9; background:#f8f9f4; z-index:2;\n' +
+'}\n' +
+'.meatball-panel button{\n' +
+'  background:none; border:none; text-align:left; padding:9px 12px; font-size:12.5px;\n' +
+'  cursor:pointer; border-bottom:1px solid #c7cab9; color:#15170f;\n' +
+'}\n' +
+'.meatball-panel button:last-child{ border-bottom:none; }\n' +
+'.meatball-panel button:hover{ background:#e3e6da; }',
+ js:
+'var mb = document.getElementById("meatBtn");\n' +
+'var mp = document.getElementById("meatPanel");\n' +
+'mb.addEventListener("click", function(){ mp.hidden = !mp.hidden; });'},
+
+{n:19, key:'modal', cat:'container', name:'Modal', desc:'사용자가 반드시 상호작용해야 닫히는, 흐름을 가로막는 작은 콘텐츠 창.',
+ html:
+'<button class="btn btn-primary" id="openModal">항목 삭제</button>\n' +
+'<div class="modal-backdrop" id="modalBackdrop" hidden>\n' +
+'  <div class="modal-box">\n' +
+'    <h3>정말 삭제하시겠습니까?</h3>\n' +
+'    <p>이 작업은 되돌릴 수 없습니다.</p>\n' +
+'    <div class="modal-actions">\n' +
+'      <button class="btn btn-ghost" id="closeModal">취소</button>\n' +
+'      <button class="btn btn-primary" id="confirmModal">삭제</button>\n' +
+'    </div>\n' +
+'  </div>\n' +
+'</div>',
+ css:
+'.btn{ font-family:inherit; font-size:13.5px; padding:10px 18px; border:2px solid #15170f; cursor:pointer; }\n' +
+'.btn-primary{ background:#15170f; color:#eef0ea; }\n' +
+'.btn-ghost{ background:transparent; color:#15170f; }\n' +
+'.modal-backdrop{\n' +
+'  position:fixed; inset:0; background:rgba(21,23,15,.55);\n' +
+'  display:flex; align-items:center; justify-content:center;\n' +
+'}\n' +
+'.modal-box{\n' +
+'  width:260px; background:#f8f9f4; border:2px solid #15170f; padding:20px;\n' +
+'}\n' +
+'.modal-box h3{ margin:0 0 8px; font-size:16px; }\n' +
+'.modal-box p{ margin:0 0 16px; font-size:12.5px; color:#51564a; }\n' +
+'.modal-actions{ display:flex; gap:8px; justify-content:flex-end; }',
+ js:
+'var open_ = document.getElementById("openModal");\n' +
+'var back = document.getElementById("modalBackdrop");\n' +
+'var close_ = document.getElementById("closeModal");\n' +
+'var confirm_ = document.getElementById("confirmModal");\n' +
+'open_.addEventListener("click", function(){ back.hidden = false; });\n' +
+'close_.addEventListener("click", function(){ back.hidden = true; });\n' +
+'confirm_.addEventListener("click", function(){ back.hidden = true; });'},
+
+{n:20, key:'notification', cat:'info', name:'Notification', desc:'새 메시지, 오류, 처리 완료 등 사용자가 알아야 할 사항을 알리는 작은 표시.',
+ html:
+'<button class="notif-bell" id="notifBell">\n' +
+'  🔔<span class="notif-dot" id="notifDot">3</span>\n' +
+'</button>\n' +
+'<p class="notif-hint">클릭하면 읽음 처리됩니다</p>',
+ css:
+'.notif-bell{\n' +
+'  position:relative; font-size:22px; background:none; border:none; cursor:pointer;\n' +
+'  width:46px; height:46px;\n' +
+'}\n' +
+'.notif-dot{\n' +
+'  position:absolute; top:4px; right:4px; background:#c44a1f; color:#eef0ea;\n' +
+'  font-family:monospace; font-size:10px; min-width:16px; height:16px; border-radius:50%;\n' +
+'  display:flex; align-items:center; justify-content:center; padding:0 2px;\n' +
+'}\n' +
+'.notif-hint{ font-size:11px; color:#9fa88f; margin:6px 0 0; }',
+ js:
+'var bell = document.getElementById("notifBell");\n' +
+'var dot = document.getElementById("notifDot");\n' +
+'bell.addEventListener("click", function(){ dot.style.display = "none"; });'},
+
+{n:21, key:'pagination', cat:'nav', name:'Pagination', desc:'콘텐츠를 여러 페이지로 나누고, 현재 위치와 이동 경로를 보여주는 엘리먼트.',
+ html:
+'<div class="pager" id="pager">\n' +
+'  <button class="pager-btn" id="pagerPrev">‹</button>\n' +
+'  <span class="pager-nums" id="pagerNums"></span>\n' +
+'  <button class="pager-btn" id="pagerNext">›</button>\n' +
+'</div>',
+ css:
+'.pager{ display:flex; align-items:center; gap:6px; }\n' +
+'.pager-btn, .pager-num{\n' +
+'  width:30px; height:30px; border:1px solid #c7cab9; background:#f8f9f4;\n' +
+'  cursor:pointer; font-family:monospace; font-size:12.5px; color:#15170f;\n' +
+'}\n' +
+'.pager-num.active{ background:#15170f; color:#eef0ea; border-color:#15170f; }\n' +
+'.pager-nums{ display:flex; gap:6px; }',
+ js:
+'var total = 5, cur = 1;\n' +
+'var numsEl = document.getElementById("pagerNums");\n' +
+'function render(){\n' +
+'  var out = "";\n' +
+'  for (var i=1;i<=total;i++){\n' +
+'    out += "<button class=\\"pager-num" + (i===cur ? " active" : "") + "\\" data-p=\\"" + i + "\\">" + i + "</button>";\n' +
+'  }\n' +
+'  numsEl.innerHTML = out;\n' +
+'  numsEl.querySelectorAll(".pager-num").forEach(function(btn){\n' +
+'    btn.addEventListener("click", function(){ cur = Number(btn.dataset.p); render(); });\n' +
+'  });\n' +
+'}\n' +
+'document.getElementById("pagerPrev").addEventListener("click", function(){ if (cur>1){ cur--; render(); } });\n' +
+'document.getElementById("pagerNext").addEventListener("click", function(){ if (cur<total){ cur++; render(); } });\n' +
+'render();'},
+
+{n:22, key:'picker', cat:'input', name:'Picker', desc:'날짜나 시간을 입력 필드보다 일관되고 정돈된 형태로 선택하게 하는 엘리먼트.',
+ html:
+'<label class="field">\n' +
+'  <span>캘리브레이션 예정일</span>\n' +
+'  <input type="date" value="2026-10-24">\n' +
+'</label>',
+ css:
+'.field{ display:flex; flex-direction:column; gap:5px; width:200px; }\n' +
+'.field span{ font-size:11.5px; color:#51564a; }\n' +
+'.field input{\n' +
+'  font-family:inherit; font-size:13.5px; padding:9px 10px; border:2px solid #15170f;\n' +
+'  background:#f8f9f4; color:#15170f;\n' +
+'}',
+ js:''},
+
+{n:23, key:'progress', cat:'info', name:'Progress Bar', desc:'사용자가 여러 단계 중 현재 어디에 있는지 시각적으로 알려주는 막대.',
+ html:
+'<div class="progress-wrap">\n' +
+'  <div class="progress-track"><div class="progress-fill" id="progFill"></div></div>\n' +
+'  <div class="progress-row">\n' +
+'    <span>배송 준비 중</span><span id="progPct">40%</span>\n' +
+'  </div>\n' +
+'  <button class="btn btn-ghost" id="progNext">다음 단계로</button>\n' +
+'</div>',
+ css:
+'.progress-wrap{ width:260px; }\n' +
+'.progress-track{ height:8px; background:#dfe1d5; border:1px solid #c7cab9; }\n' +
+'.progress-fill{ height:100%; width:40%; background:#3c5b3f; transition:width .3s ease; }\n' +
+'.progress-row{\n' +
+'  display:flex; justify-content:space-between; font-size:11px; color:#51564a;\n' +
+'  margin:6px 0 12px; font-family:monospace;\n' +
+'}\n' +
+'.btn-ghost{\n' +
+'  font-family:inherit; font-size:12.5px; padding:8px 14px; border:2px solid #15170f;\n' +
+'  background:transparent; cursor:pointer;\n' +
+'}',
+ js:
+'var steps = [40, 70, 100];\n' +
+'var si = 0;\n' +
+'var fill = document.getElementById("progFill");\n' +
+'var pct = document.getElementById("progPct");\n' +
+'var labels = ["배송 준비 중", "배송 중", "배송 완료"];\n' +
+'var label = document.querySelector(".progress-row span");\n' +
+'document.getElementById("progNext").addEventListener("click", function(){\n' +
+'  si = Math.min(si+1, steps.length-1);\n' +
+'  fill.style.width = steps[si] + "%";\n' +
+'  pct.textContent = steps[si] + "%";\n' +
+'  label.textContent = labels[si];\n' +
+'});'},
+
+{n:24, key:'radio', cat:'input', name:'Radio Buttons', desc:'체크박스와 달리, 목록 중 오직 하나의 옵션만 선택할 수 있게 하는 원형 엘리먼트.',
+ html:
+'<fieldset class="chk-group">\n' +
+'  <legend>배송 방법</legend>\n' +
+'  <label class="chk"><input type="radio" name="ship" checked> 일반 배송</label>\n' +
+'  <label class="chk"><input type="radio" name="ship"> 당일 배송</label>\n' +
+'  <label class="chk"><input type="radio" name="ship"> 매장 픽업</label>\n' +
+'</fieldset>',
+ css:
+'.chk-group{ border:none; padding:0; margin:0; }\n' +
+'.chk-group legend{ font-size:12px; color:#51564a; padding:0 0 10px; }\n' +
+'.chk{ display:flex; align-items:center; gap:8px; font-size:13.5px; padding:5px 0; cursor:pointer; }\n' +
+'.chk input{ width:16px; height:16px; accent-color:#c44a1f; cursor:pointer; }',
+ js:''},
+
+{n:25, key:'search', cat:'input', name:'Search Field', desc:'돋보기 아이콘이 함께 표시되는 입력 필드로, 시스템 내 정보를 찾는 데 사용.',
+ html:
+'<div class="search-field">\n' +
+'  <svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 15l5 5" stroke="currentColor" stroke-width="2"/></svg>\n' +
+'  <input type="search" placeholder="DYNAMIXEL 모델 검색…">\n' +
+'</div>',
+ css:
+'.search-field{\n' +
+'  display:flex; align-items:center; gap:8px; width:240px; padding:9px 12px;\n' +
+'  border:2px solid #15170f; background:#f8f9f4;\n' +
+'}\n' +
+'.search-field svg{ width:17px; height:17px; color:#9fa88f; flex:none; }\n' +
+'.search-field input{\n' +
+'  border:none; background:none; font-family:inherit; font-size:13.5px; width:100%;\n' +
+'  color:#15170f; outline:none;\n' +
+'}',
+ js:''},
+
+{n:26, key:'sidebar', cat:'nav', name:'Sidebar', desc:'내비게이션이나 콘텐츠를 화면 측면에 고정하거나 접어 숨길 수 있는 영역.',
+ html:
+'<div class="sb-demo">\n' +
+'  <aside class="sb-panel">\n' +
+'    <div class="sb-logo">42GS</div>\n' +
+'    <a href="#" class="sb-active">대시보드</a>\n' +
+'    <a href="#">프로젝트</a>\n' +
+'    <a href="#">팀</a>\n' +
+'    <a href="#">설정</a>\n' +
+'  </aside>\n' +
+'  <div class="sb-content">메인 콘텐츠 영역</div>\n' +
+'</div>',
+ css:
+'.sb-demo{ display:flex; border:1px solid #c7cab9; width:320px; height:180px; }\n' +
+'.sb-panel{\n' +
+'  width:110px; background:#15170f; display:flex; flex-direction:column;\n' +
+'  padding:14px 0; flex:none;\n' +
+'}\n' +
+'.sb-logo{\n' +
+'  color:#c44a1f; font-family:monospace; font-size:11px; letter-spacing:.1em;\n' +
+'  padding:0 14px 12px;\n' +
+'}\n' +
+'.sb-panel a{\n' +
+'  color:#c6cab6; text-decoration:none; font-size:12px; padding:9px 14px;\n' +
+'}\n' +
+'.sb-panel a.sb-active{ background:#2a2d1f; color:#eef0ea; }\n' +
+'.sb-content{\n' +
+'  flex:1; display:flex; align-items:center; justify-content:center;\n' +
+'  color:#9fa88f; font-size:12.5px; background:#f8f9f4;\n' +
+'}',
+ js:''},
+
+{n:27, key:'slider', cat:'input', name:'Slider Controls', desc:'손가락이나 마우스로 끌어 값을 세밀하게 조절할 수 있는 입력 엘리먼트.',
+ html:
+'<label class="field">\n' +
+'  <span id="sliderLabel">출력 토크 — 65%</span>\n' +
+'  <input type="range" min="0" max="100" value="65" id="sliderInput">\n' +
+'</label>',
+ css:
+'.field{ display:flex; flex-direction:column; gap:8px; width:220px; }\n' +
+'.field span{ font-size:12px; color:#51564a; font-family:monospace; }\n' +
+'input[type=range]{ accent-color:#c44a1f; width:100%; }',
+ js:
+'var s = document.getElementById("sliderInput");\n' +
+'var l = document.getElementById("sliderLabel");\n' +
+'s.addEventListener("input", function(){ l.textContent = "출력 토크 — " + s.value + "%"; });'},
+
+{n:28, key:'stepper', cat:'input', name:'Stepper', desc:'슬라이더와 달리, 정해진 증감 단위로만 값을 조절할 수 있는 2분할 컨트롤.',
+ html:
+'<div class="stepper">\n' +
+'  <button id="stepMinus">−</button>\n' +
+'  <span id="stepVal">2</span>\n' +
+'  <button id="stepPlus">+</button>\n' +
+'  <span class="stepper-unit">개</span>\n' +
+'</div>',
+ css:
+'.stepper{ display:flex; align-items:center; gap:0; width:fit-content; border:2px solid #15170f; }\n' +
+'.stepper button{\n' +
+'  width:34px; height:34px; background:#f8f9f4; border:none; font-size:16px;\n' +
+'  cursor:pointer; color:#15170f;\n' +
+'}\n' +
+'.stepper button:hover{ background:#e3e6da; }\n' +
+'.stepper span#stepVal{\n' +
+'  width:36px; text-align:center; font-family:monospace; font-size:14px;\n' +
+'  border-left:1px solid #c7cab9; border-right:1px solid #c7cab9; line-height:34px;\n' +
+'}\n' +
+'.stepper-unit{ margin-left:10px; font-size:12px; color:#51564a; }',
+ js:
+'var v = 2;\n' +
+'var val = document.getElementById("stepVal");\n' +
+'document.getElementById("stepMinus").addEventListener("click", function(){ v = Math.max(0, v-1); val.textContent = v; });\n' +
+'document.getElementById("stepPlus").addEventListener("click", function(){ v = Math.min(9, v+1); val.textContent = v; });'},
+
+{n:29, key:'tag', cat:'info', name:'Tag', desc:'콘텐츠를 표시하고 분류하는 데 쓰이는 레이블. 블로그·SNS에서 자주 사용됩니다.',
+ html:
+'<div class="tag-row">\n' +
+'  <span class="tag">C++98</span>\n' +
+'  <span class="tag">로보틱스</span>\n' +
+'  <span class="tag tag-accent">42Seoul</span>\n' +
+'  <span class="tag">오디오엔지니어링</span>\n' +
+'</div>',
+ css:
+'.tag-row{ display:flex; gap:8px; flex-wrap:wrap; }\n' +
+'.tag{\n' +
+'  font-family:monospace; font-size:11px; letter-spacing:.03em; padding:5px 10px;\n' +
+'  border:1px solid #c7cab9; color:#51564a; background:#f8f9f4;\n' +
+'}\n' +
+'.tag-accent{ border-color:#c44a1f; color:#c44a1f; }',
+ js:''},
+
+{n:30, key:'tabbar', cat:'nav', name:'Tab Bar', desc:'모바일 앱 하단에 위치해 앱의 주요 섹션 간 빠른 전환을 돕는 내비게이션.',
+ html:
+'<div class="tabbar" id="tabbar">\n' +
+'  <button class="tabbar-item active" data-t="home">🏠<span>홈</span></button>\n' +
+'  <button class="tabbar-item" data-t="search">🔍<span>검색</span></button>\n' +
+'  <button class="tabbar-item" data-t="alerts">🔔<span>알림</span></button>\n' +
+'  <button class="tabbar-item" data-t="me">👤<span>내정보</span></button>\n' +
+'</div>',
+ css:
+'.tabbar{\n' +
+'  display:flex; width:280px; border:1px solid #c7cab9; background:#f8f9f4;\n' +
+'}\n' +
+'.tabbar-item{\n' +
+'  flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;\n' +
+'  padding:10px 0; background:none; border:none; cursor:pointer; font-size:16px;\n' +
+'  color:#9fa88f; border-top:2px solid transparent;\n' +
+'}\n' +
+'.tabbar-item span{ font-size:10px; font-family:monospace; }\n' +
+'.tabbar-item.active{ color:#15170f; border-top-color:#c44a1f; }',
+ js:
+'document.querySelectorAll(".tabbar-item").forEach(function(btn){\n' +
+'  btn.addEventListener("click", function(){\n' +
+'    document.querySelectorAll(".tabbar-item").forEach(function(b){ b.classList.remove("active"); });\n' +
+'    btn.classList.add("active");\n' +
+'  });\n' +
+'});'},
+
+{n:31, key:'tooltip', cat:'info', name:'Tooltip', desc:'인터페이스의 특정 부분이나 과정을 이해하도록 돕는 작은 힌트 말풍선.',
+ html:
+'<div class="tip-wrap">\n' +
+'  <button class="tip-trigger">토크 한계값 ⓘ</button>\n' +
+'  <span class="tip-bubble">최대 허용 토크를 초과하면 모터가 자동으로 정지합니다.</span>\n' +
+'</div>',
+ css:
+'.tip-wrap{ position:relative; display:inline-block; }\n' +
+'.tip-trigger{\n' +
+'  font-family:inherit; font-size:13px; padding:9px 14px; border:1px solid #c7cab9;\n' +
+'  background:#f8f9f4; cursor:default; color:#15170f;\n' +
+'}\n' +
+'.tip-bubble{\n' +
+'  position:absolute; bottom:calc(100% + 8px); left:0; width:200px;\n' +
+'  background:#15170f; color:#eef0ea; font-size:11.5px; padding:9px 11px;\n' +
+'  opacity:0; pointer-events:none; transition:opacity .15s ease;\n' +
+'}\n' +
+'.tip-wrap:hover .tip-bubble{ opacity:1; }',
+ js:''},
+
+{n:32, key:'toggle', cat:'input', name:'Toggle', desc:'켜고 끄는 두 가지 상태를 전환하는 스위치 형태의 엘리먼트.',
+ html:
+'<label class="toggle-row">\n' +
+'  <span>다크 모드</span>\n' +
+'  <input type="checkbox" class="toggle-input" id="toggleInput">\n' +
+'  <span class="toggle-track"><span class="toggle-knob"></span></span>\n' +
+'</label>',
+ css:
+'.toggle-row{ display:flex; align-items:center; gap:12px; font-size:13.5px; cursor:pointer; width:fit-content; }\n' +
+'.toggle-input{ position:absolute; opacity:0; width:0; height:0; }\n' +
+'.toggle-track{\n' +
+'  width:42px; height:22px; background:#c7cab9; display:inline-block; position:relative;\n' +
+'  transition:background .2s ease;\n' +
+'}\n' +
+'.toggle-knob{\n' +
+'  position:absolute; top:2px; left:2px; width:18px; height:18px; background:#f8f9f4;\n' +
+'  transition:transform .2s ease;\n' +
+'}\n' +
+'.toggle-input:checked + .toggle-track{ background:#3c5b3f; }\n' +
+'.toggle-input:checked + .toggle-track .toggle-knob{ transform:translateX(20px); }',
+ js:''}
+
+];
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+var indexScroll = document.getElementById('indexScroll');
+var CAT_LABEL = {};
+CATS.forEach(function(c){ CAT_LABEL[c.key] = c.label; });
+
+CATS.forEach(function(cat){
+  var group = ITEMS.filter(function(it){ return it.cat === cat.key; });
+  var wrap = document.createElement('div');
+  wrap.className = 'cat-group';
+  var label = document.createElement('div');
+  label.className = 'cat-label';
+  label.innerHTML = '<span>' + cat.label + '</span><span class="cat-count">' + group.length + '</span>';
+  wrap.appendChild(label);
+  group.forEach(function(it){
+    var btn = document.createElement('button');
+    btn.className = 'elem-btn';
+    btn.dataset.key = it.key;
+    btn.innerHTML = '<span class="n">' + String(it.n).padStart(2,'0') + '</span><span>' + it.name + '</span>';
+    btn.addEventListener('click', function(){ select(it.key); });
+    wrap.appendChild(btn);
+  });
+  indexScroll.appendChild(wrap);
+});
+
+var plateNo = document.getElementById('plateNo');
+var elName = document.getElementById('elName');
+var elDesc = document.getElementById('elDesc');
+var elCat = document.getElementById('elCat');
+var frame = document.getElementById('previewFrame');
+var codeHtml = document.querySelector('#codeHtml code');
+var codeCss = document.querySelector('#codeCss code');
+var codeJs = document.querySelector('#codeJs code');
+var currentKey = null;
+
+function esc(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function buildSrcdoc(item){
+  return '<!doctype html><html><head><meta charset="utf-8">' +
+    '<style>' +
+    'html,body{margin:0;padding:18px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;' +
+    'color:#15170f;background:transparent;box-sizing:border-box;}' +
+    '*{box-sizing:border-box}' +
+    '</style>' +
+    '<style>' + item.css + '</style>' +
+    '</head><body>' + item.html +
+    '<script>' + item.js + '<' + '/script>' +
+    '</body></html>';
+}
+
+function select(key){
+  var item = null;
+  for (var i=0;i<ITEMS.length;i++){ if (ITEMS[i].key === key){ item = ITEMS[i]; break; } }
+  if (!item) return;
+  currentKey = key;
+
+  document.querySelectorAll('.elem-btn').forEach(function(b){
+    b.classList.toggle('active', b.dataset.key === key);
+  });
+
+  plateNo.textContent = 'PLATE ' + String(item.n).padStart(2,'0') + ' / 32';
+  elName.textContent = item.name;
+  elDesc.textContent = item.desc;
+  elCat.textContent = CAT_LABEL[item.cat].split(' · ')[1] || CAT_LABEL[item.cat];
+
+  frame.srcdoc = buildSrcdoc(item);
+
+  codeHtml.textContent = item.html;
+  codeCss.textContent = item.css || '/* 이 엘리먼트는 전용 CSS가 없습니다 */';
+  codeJs.textContent = item.js || '// 이 엘리먼트는 자바스크립트가 필요 없습니다 (정적 마크업)';
+
+  var active = document.querySelector('.tab-btn.active');
+  var tab = active ? active.dataset.tab : 'html';
+  showTab(tab);
+
+  try { localStorage.setItem('ui-glossary-last', key); } catch(e){}
+}
+
+/* tabs */
+document.querySelectorAll('.tab-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    showTab(btn.dataset.tab);
+  });
+});
+function showTab(tab){
+  document.getElementById('codeHtml').hidden = tab !== 'html';
+  document.getElementById('codeCss').hidden = tab !== 'css';
+  document.getElementById('codeJs').hidden = tab !== 'js';
+}
+
+/* copy */
+document.getElementById('copyBtn').addEventListener('click', function(){
+  var active = document.querySelector('.tab-btn.active');
+  var tab = active ? active.dataset.tab : 'html';
+  var map = {html: codeHtml, css: codeCss, js: codeJs};
+  var text = map[tab].textContent;
+  var btn = document.getElementById('copyBtn');
+  function done(ok){ btn.textContent = ok ? 'COPIED' : 'FAILED'; setTimeout(function(){ btn.textContent = 'COPY'; }, 1200); }
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){ done(true); }).catch(function(){ done(false); });
+  } else {
+    done(false);
+  }
+});
+
+/* initial selection */
+var startKey = 'accordion';
+try {
+  var saved = localStorage.getItem('ui-glossary-last');
+  if (saved && ITEMS.some(function(it){ return it.key === saved; })) startKey = saved;
+} catch(e){}
+select(startKey);
+</script>
