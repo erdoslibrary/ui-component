@@ -1,0 +1,43 @@
+name: Deploy static content to Pages
+
+on:
+  # main 브랜치로 push될 때 자동 실행
+  push:
+    branches: ["main"]
+
+  # GitHub Actions 탭에서 수동으로 실행 가능하게 설정
+  workflow_dispatch:
+
+# GitHub Pages 배포를 위한 권한 설정
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 동시 배포 방지 및 이전 실행 대기
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # 루트 디렉토리의 정적 파일들을 업로드 (index.html, css/, js/ 등)
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
