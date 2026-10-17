@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UI Kit Playground — CareerFoundry 32 UI & UX Layers</title>
+
+  <!--
+    Anti-AI-Slop Design Principles Applied:
+    - Typography Selection:
+      * Headings & Accent: 'Outfit' (절제된 기하학적 균형미와 현대적인 조형성)
+      * Body & UI Text: 'Pretendard' (한국어/영문 가독성 최적화 및 정갈한 고딕 비율)
+      * Code & Tokens: 'JetBrains Mono' (고정폭 코드 가독성 및 명확한 기호 식별)
+    - Anti-Slop Constraints:
+      * Gradients: 0% (단색 무채색 베이스 + 1색 기능성 액센트)
+      * Glassmorphism & Backdrop blur: 0%
+      * Shadows: 중성 회색 1단계 (0 1px 2px rgba(0,0,0,0.06)) 이하
+      * Decorative Motion & Transforms: 0% (기능적 상태 전환에만 150ms 이하 transition)
+      * Borders & Radii: 1px solid border 중심, radius 0~8px 엄격 준수
+  -->
+
+  <!-- Typography CDNs -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+  <style>
+    /* ==========================================================================
+       Design System Tokens (Anti-AI-Slop: Strict Neutral + Single Accent)
+       ========================================================================== */
+    :root {
+      /* Typography */
+      --font-display: 'Outfit', sans-serif;
+      --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+      /* Radii: Strictly 0~8px */
+      --radius-xs: 2px;
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+
+      /* Transitions: <=150ms, purely functional */
+      --duration-fast: 120ms;
+
+      /* Light Theme (Default fallback tokens) */
+      --bg-canvas: #ffffff;
+      --bg-subtle: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-surface-hover: #f1f5f9;
+      --bg-surface-active: #e2e8f0;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-tertiary: #94a3b8;
+
+      /* Single Accent: Deep Slate Blue (기능적 상태·활성화에만 사용) */
+      --accent: #2563eb;
+      --accent-text: #ffffff;
+      --accent-soft: #eff6ff;
+      --accent-border: #bfdbfe;
+
+      /* Neutral Shadow: 1 level only */
+      --shadow-neutral: 0 1px 2px rgba(0, 0, 0, 0.06);
+
+      /* Code Editor Theme (Light) */
+      --code-bg: #f8fafc;
+      --code-border: #e2e8f0;
+      --code-text: #334155;
+      --tok-comment: #94a3b8;
+      --tok-tag: #2563eb;
+      --tok-attr: #0891b2;
+      --tok-val: #059669;
+      --tok-kw: #7c3aed;
+      --tok-str: #059669;
+      --tok-fn: #d97706;
+      --tok-num: #ea580c;
+    }
+
+    [data-theme="dark"] {
+      --bg-canvas: #090d16;
+      --bg-subtle: #0f1420;
+      --bg-surface: #141a29;
+      --bg-surface-hover: #1e2638;
+      --bg-surface-active: #273147;
+      --border: #232d3f;
+      --border-strong: #333f57;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-tertiary: #64748b;
+
+      /* Single Accent: Cobalt Blue */
+      --accent: #3b82f6;
+      --accent-text: #ffffff;
+      --accent-soft: #172554;
+      --accent-border: #1d4ed8;
+
+      --shadow-neutral: 0 1px 2px rgba(0, 0, 0, 0.35);
+
+      /* Code Editor Theme (Dark) */
+      --code-bg: #0b0f19;
+      --code-border: #232d3f;
+      --code-text: #e2e8f0;
+      --tok-comment: #64748b;
+      --tok-tag: #60a5fa;
+      --tok-attr: #38bdf8;
+      --tok-val: #34d399;
+      --tok-kw: #a78bfa;
+      --tok-str: #34d399;
+      --tok-fn: #fbbf24;
+      --tok-num: #fb923c;
+    }
+
+    /* Reset & Base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg-canvas);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ==========================================================================
+       Layout: Fixed Header + Sidebar + Main Workspace
+       ========================================================================== */
+    .pg-app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ─── Top Header ─── */
+    .pg-header {
+      height: 54px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      flex-shrink: 0;
+      gap: 16px;
+      z-index: 20;
+    }
+
+    .pg-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .pg-brand-mark {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-subtle);
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+    }
+
+    .pg-brand-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pg-badge-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 1px 6px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      border-radius: var(--radius-xs);
+    }
+
+    .pg-search-container {
+      flex: 1;
+      max-width: 480px;
+      position: relative;
+    }
+
+    .pg-search-input {
+      width: 100%;
+      height: 32px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0 54px 0 30px;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color var(--duration-fast);
+    }
+
+    .pg-search-input:focus {
+      border-color: var(--accent);
+      background: var(--bg-surface);
+    }
+
+    .pg-search-icon {
+      position: absolute;
+      left: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-tertiary);
+      font-size: 12px;
+      pointer-events: none;
+    }
+
+    .pg-search-shortcut {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-tertiary);
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: var(--radius-xs);
+      pointer-events: none;
+    }
+
+    .pg-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .pg-btn {
+      height: 32px;
+      padding: 0 10px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background var(--duration-fast), border-color var(--duration-fast);
+    }
+
+    .pg-btn:hover {
+      background: var(--bg-surface-hover);
+      border-color: var(--border-strong);
+    }
+
+    .pg-btn:active {
+      background: var(--bg-surface-active);
+    }
+
+    .pg-btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-text);
+    }
+
+    .pg-btn-primary:hover {
+      background: var(--accent);
+      opacity: 0.92;
+      border-color: var(--accent);
+    }
+
+    /* ─── Main Shell ─── */
+    .pg-shell {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ─── Left Sidebar ─── */
+    .pg-sidebar {
+      width: 290px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      background: var(--bg-surface);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Category Filter Tabs */
+    .pg-cat-filters {
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      background: var(--bg-subtle);
+    }
+
+    .pg-filter-btn {
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: var(--radius-xs);
+      cursor: pointer;
+      transition: background var(--duration-fast), color var(--duration-fast), border-color var(--duration-fast);
+    }
+
+    .pg-filter-btn:hover {
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+    }
+
+    .pg-filter-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-text);
+    }
+
+    /* Sidebar List */
+    .pg-nav-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+
+    .pg-section-label {
+      padding: 10px 8px 4px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-tertiary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pg-nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 7px 8px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      text-align: left;
+      cursor: pointer;
+      margin-bottom: 2px;
+      transition: background var(--duration-fast), border-color var(--duration-fast), color var(--duration-fast);
+    }
+
+    .pg-nav-item:hover {
+      background: var(--bg-surface-hover);
+      color: var(--text-primary);
+    }
+
+    .pg-nav-item.active {
+      background: var(--accent-soft);
+      border-color: var(--accent-border);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .pg-nav-item-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-right: 8px;
+      width: 22px;
+      flex-shrink: 0;
+    }
+
+    .pg-nav-item.active .pg-nav-item-num {
+      color: var(--accent);
+    }
+
+    .pg-nav-item-title {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pg-nav-item-ko {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-left: 6px;
+    }
+
+    .pg-nav-item-cat {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 1px 4px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xs);
+      color: var(--text-tertiary);
+      margin-left: 6px;
+      flex-shrink: 0;
+    }
+
+    /* ─── Right Main Workspace ─── */
+    .pg-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      background: var(--bg-canvas);
+    }
+
+    /* Component Info Bar */
+    .pg-info-bar {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-surface);
+    }
+
+    .pg-info-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .pg-info-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 2px 6px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+      border-radius: var(--radius-xs);
+    }
+
+    .pg-info-tag.accent {
+      border-color: var(--accent-border);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .pg-info-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .pg-info-title-ko {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .pg-info-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-top: 6px;
+      max-width: 800px;
+    }
+
+    .pg-info-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .pg-detail-box {
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .pg-detail-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-bottom: 3px;
+      text-transform: uppercase;
+    }
+
+    .pg-detail-val {
+      color: var(--text-primary);
+    }
+
+    /* ─── Playground Workspace Grid ─── */
+    .pg-work-grid {
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Live Preview Section */
+    .pg-preview-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+      overflow: hidden;
+      box-shadow: var(--shadow-neutral);
+    }
+
+    .pg-card-header {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .pg-card-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pg-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Sandbox Interactive Stage */
+    .pg-stage {
+      padding: 36px 24px 120px; /* 팝오버, 달력, 드롭다운 등이 열려도 잘리지 않는 충분한 하단 여백 */
+      min-height: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      background: var(--bg-canvas);
+      position: relative;
+      overflow: auto;
+    }
+
+    /* Code Inspector Section */
+    .pg-code-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--code-bg);
+      overflow: hidden;
+      box-shadow: var(--shadow-neutral);
+    }
+
+    .pg-code-header {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .pg-code-tabs {
+      display: flex;
+      gap: 4px;
+    }
+
+    .pg-code-tab {
+      padding: 5px 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-xs);
+      cursor: pointer;
+      transition: background var(--duration-fast), color var(--duration-fast);
+    }
+
+    .pg-code-tab:hover {
+      color: var(--text-primary);
+    }
+
+    .pg-code-tab.active {
+      background: var(--bg-surface);
+      border-color: var(--border);
+      color: var(--accent);
+    }
+
+    .pg-code-pre {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--code-text);
+      max-height: 280px;
+      white-space: pre;
+    }
+
+    /* Syntax Highlighting Tokens (Anti-AI-Slop: Clean & High contrast) */
+    .token.comment { color: var(--tok-comment); font-style: italic; }
+    .token.tag-name { color: var(--tok-tag); font-weight: 600; }
+    .token.attr-name { color: var(--tok-attr); }
+    .token.attr-value { color: var(--tok-val); }
+    .token.keyword { color: var(--tok-kw); font-weight: 600; }
+    .token.string { color: var(--tok-str); }
+    .token.function { color: var(--tok-fn); }
+    .token.number { color: var(--tok-num); }
+    .token.selector { color: var(--tok-tag); font-weight: 600; }
+    .token.property { color: var(--tok-attr); }
+    .token.value { color: var(--tok-val); }
+
+    /* Empty state */
+    .pg-empty {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-tertiary);
+      font-size: 13px;
+    }
+
+    /* Notice Footer */
+    .pg-footer-notice {
+      padding: 16px 24px 32px;
+      color: var(--text-tertiary);
+      font-size: 11px;
+      border-top: 1px solid var(--border);
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pg-footer-notice a {
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+
+    .pg-footer-notice a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    /* ─── Sandbox Isolation Style Hook ─── */
+    #sandboxContainer {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 120px;
+    }
+
+    /* Responsive */
+    @media (max-width: 860px) {
+      .pg-sidebar {
+        width: 240px;
+      }
+      .pg-info-title {
+        font-size: 20px;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .pg-shell {
+        flex-direction: column;
+      }
+      .pg-sidebar {
+        width: 100%;
+        height: 220px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      .pg-header {
+        padding: 0 10px;
+      }
+      .pg-search-container {
+        max-width: 200px;
+      }
+    }
+  </style>
+
+  <!-- Sandbox Dynamic Injected Style Slot -->
+  <style id="sandboxInjectedStyle"></style>
+</head>
+<body>
+
+<div class="pg-app">
+
+  <!-- ─── 1. Header Bar ─── -->
+  <header class="pg-header">
+    <div class="pg-brand">
+      <div class="pg-brand-mark">UI</div>
+      <div class="pg-brand-title">
+        UI Kit Playground
+        <span class="pg-badge-pill" id="totalCountBadge">40 Items</span>
+      </div>
+    </div>
+
+    <!-- Search Box (Cmd+K) -->
+    <div class="pg-search-container">
+      <span class="pg-search-icon">⚲</span>
+      <input type="search" id="searchInput" class="pg-search-input" placeholder="컴포넌트 검색 (예: Button, Modal, Accordion...)">
+      <span class="pg-search-shortcut">⌘K</span>
+    </div>
+
+    <!-- Actions -->
+    <div class="pg-header-actions">
+      <button type="button" id="prevItemBtn" class="pg-btn" title="이전 컴포넌트 [">← 이전</button>
+      <button type="button" id="nextItemBtn" class="pg-btn" title="다음 컴포넌트 ]">다음 →</button>
+      <button type="button" id="themeToggleBtn" class="pg-btn" title="테마 전환">다크 모드</button>
+      <a href="index.html" class="pg-btn" title="메인 카탈로그 뷰로 이동">도감 뷰</a>
+    </div>
+  </header>
+
+  <!-- ─── 2. Shell (Sidebar + Main) ─── -->
+  <div class="pg-shell">
+
+    <!-- ─── Left Sidebar ─── -->
+    <aside class="pg-sidebar">
+      <!-- Category Filter Tabs -->
+      <div class="pg-cat-filters">
+        <button type="button" class="pg-filter-btn active" data-cat="all">전체</button>
+        <button type="button" class="pg-filter-btn" data-cat="layer">UX 레이어</button>
+        <button type="button" class="pg-filter-btn" data-cat="input">입력</button>
+        <button type="button" class="pg-filter-btn" data-cat="nav">내비</button>
+        <button type="button" class="pg-filter-btn" data-cat="info">정보</button>
+        <button type="button" class="pg-filter-btn" data-cat="container">컨테이너</button>
+      </div>
+
+      <!-- Navigation List -->
+      <nav class="pg-nav-list" id="navList" aria-label="컴포넌트 목록">
+        <!-- Rendered by JS -->
+      </nav>
+    </aside>
+
+    <!-- ─── Right Main Workspace ─── -->
+    <main class="pg-main" id="mainWorkspace">
+
+      <!-- Component Info Header -->
+      <section class="pg-info-bar">
+        <div class="pg-info-meta">
+          <span class="pg-info-tag accent" id="infoCat">CATEGORY</span>
+          <span class="pg-info-tag" id="infoNum">#01</span>
+          <span class="pg-info-tag" id="infoId">id</span>
+        </div>
+        <h1 class="pg-info-title">
+          <span id="infoName">Accordion</span>
+          <span class="pg-info-title-ko" id="infoNameKo">아코디언</span>
+        </h1>
+        <p class="pg-info-desc" id="infoDesc">설명 내용이 여기에 표시됩니다.</p>
+
+        <div class="pg-info-details">
+          <div class="pg-detail-box">
+            <div class="pg-detail-label">권장 활용처 (Usecase)</div>
+            <div class="pg-detail-val" id="infoUsecase">-</div>
+          </div>
+          <div class="pg-detail-box">
+            <div class="pg-detail-label">주요 특징 (Key Feature)</div>
+            <div class="pg-detail-val" id="infoFeature">-</div>
+          </div>
+          <div class="pg-detail-box" id="a11yBox">
+            <div class="pg-detail-label">접근성 가이드 (Accessibility)</div>
+            <div class="pg-detail-val" id="infoA11y">-</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Workspace Body -->
+      <div class="pg-work-grid">
+
+        <!-- 1. Interactive Live Preview -->
+        <section class="pg-preview-card">
+          <div class="pg-card-header">
+            <div class="pg-card-title">
+              <span>●</span> 실시간 인터랙션 미리보기 (Live Preview)
+            </div>
+            <div class="pg-card-actions">
+              <button type="button" id="resetSandboxBtn" class="pg-btn" title="인터랙션 초기화">초기화</button>
+            </div>
+          </div>
+          <div class="pg-stage">
+            <div id="sandboxContainer">
+              <!-- Live Component is injected here -->
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. Code Inspector -->
+        <section class="pg-code-card">
+          <div class="pg-code-header">
+            <div class="pg-code-tabs">
+              <button type="button" class="pg-code-tab active" data-tab="html">HTML</button>
+              <button type="button" class="pg-code-tab" data-tab="css">CSS</button>
+              <button type="button" class="pg-code-tab" data-tab="js">JavaScript</button>
+            </div>
+            <div class="pg-card-actions">
+              <button type="button" id="copyCodeBtn" class="pg-btn pg-btn-primary">코드 복사</button>
+            </div>
+          </div>
+          <pre class="pg-code-pre"><code id="codeOutput"></code></pre>
+        </section>
+
+      </div>
+
+      <!-- Footer Policy / Anti-AI-Slop Notice -->
+      <footer class="pg-footer-notice">
+        <div>
+          <strong>Design Standard:</strong> Anti-AI-Slop Specification (1px borders, zero-gradients, purposeful typography).
+        </div>
+        <div>
+          Typography: Outfit (Display) & Pretendard (Body) & JetBrains Mono (Code).
+        </div>
+      </footer>
+
+    </main>
+
+  </div>
+
+</div>
+
+<!-- ─── Data Modules & Syntax Highlighter ─── -->
+<script src="js/highlighter.js"></script>
+<script src="js/data/components-32.js"></script>
+<script src="js/data/ux-layers.js"></script>
+
+<script>
+/**
+ * UI Kit Playground Controller
+ * Loads window.COMPONENTS_32 and window.UX_LAYERS
+ * Provides Live Sandboxing, Syntax Highlighting, Theme Toggle, and Filtering
+ */
+(function() {
+  'use strict';
+
+  // 1. Data Aggregation
+  const items32 = (window.COMPONENTS_32 || []).map(item => ({
+    ...item,
+    source: '32',
+    catGroup: item.cat || 'component'
+  }));
+
+  const itemsLayers = (window.UX_LAYERS || []).map(item => ({
+    ...item,
+    source: 'layer',
+    cat: item.cat || 'layer',
+    catGroup: 'layer'
+  }));
+
+  const allItems = [...itemsLayers, ...items32];
+
+  // State
+  let currentActiveId = null;
+  let currentTab = 'html'; // 'html' | 'css' | 'js'
+  let currentCatFilter = 'all';
+  let searchQuery = '';
+
+  // DOM Elements
+  const navList = document.getElementById('navList');
+  const searchInput = document.getElementById('searchInput');
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  const prevItemBtn = document.getElementById('prevItemBtn');
+  const nextItemBtn = document.getElementById('nextItemBtn');
+  const filterBtns = document.querySelectorAll('.pg-filter-btn');
+  const codeTabs = document.querySelectorAll('.pg-code-tab');
+  const copyCodeBtn = document.getElementById('copyCodeBtn');
+  const resetSandboxBtn = document.getElementById('resetSandboxBtn');
+  const totalCountBadge = document.getElementById('totalCountBadge');
+
+  // Info Elements
+  const infoCat = document.getElementById('infoCat');
+  const infoNum = document.getElementById('infoNum');
+  const infoId = document.getElementById('infoId');
+  const infoName = document.getElementById('infoName');
+  const infoNameKo = document.getElementById('infoNameKo');
+  const infoDesc = document.getElementById('infoDesc');
+  const infoUsecase = document.getElementById('infoUsecase');
+  const infoFeature = document.getElementById('infoFeature');
+  const infoA11y = document.getElementById('infoA11y');
+  const a11yBox = document.getElementById('a11yBox');
+
+  // Preview Elements
+  const sandboxContainer = document.getElementById('sandboxContainer');
+  const sandboxInjectedStyle = document.getElementById('sandboxInjectedStyle');
+  const codeOutput = document.getElementById('codeOutput');
+
+  // 2. Theme Management
+  function initTheme() {
+    const saved = localStorage.getItem('uikit_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    updateThemeBtn(saved);
+  }
+
+  function updateThemeBtn(theme) {
+    themeToggleBtn.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+  }
+
+  themeToggleBtn.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('uikit_theme', next);
+    updateThemeBtn(next);
+  });
+
+  // 3. Navigation List Rendering
+  function renderNav() {
+    const filtered = allItems.filter(item => {
+      // Category filter
+      if (currentCatFilter !== 'all') {
+        if (currentCatFilter === 'layer') {
+          if (item.source !== 'layer') return false;
+        } else if (item.cat !== currentCatFilter) {
+          return false;
+        }
+      }
+
+      // Search query filter
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchName = item.name.toLowerCase().includes(q);
+        const matchKo = (item.nameKo || '').toLowerCase().includes(q);
+        const matchId = (item.id || '').toLowerCase().includes(q);
+        const matchDesc = (item.desc || '').toLowerCase().includes(q);
+        const matchUsecase = (item.usecase || '').toLowerCase().includes(q);
+        return matchName || matchKo || matchId || matchDesc || matchUsecase;
+      }
+      return true;
+    });
+
+    if (totalCountBadge) {
+      totalCountBadge.textContent = `${filtered.length} / ${allItems.length} Items`;
+    }
+
+    navList.innerHTML = '';
+
+    if (filtered.length === 0) {
+      navList.innerHTML = `<div class="pg-empty">검색 결과가 없습니다.</div>`;
+      return;
+    }
+
+    // Grouping: Layers first, then Components
+    const layerItems = filtered.filter(i => i.source === 'layer');
+    const compItems = filtered.filter(i => i.source !== 'layer');
+
+    if (layerItems.length > 0) {
+      const label = document.createElement('div');
+      label.className = 'pg-section-label';
+      label.innerHTML = `<span>UX 공통 레이어</span><span>${layerItems.length}</span>`;
+      navList.appendChild(label);
+
+      layerItems.forEach(item => {
+        navList.appendChild(createNavItem(item));
+      });
+    }
+
+    if (compItems.length > 0) {
+      const label = document.createElement('div');
+      label.className = 'pg-section-label';
+      label.innerHTML = `<span>32 표준 컴포넌트</span><span>${compItems.length}</span>`;
+      navList.appendChild(label);
+
+      compItems.forEach(item => {
+        navList.appendChild(createNavItem(item));
+      });
+    }
+  }
+
+  function createNavItem(item) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `pg-nav-item ${item.id === currentActiveId ? 'active' : ''}`;
+    btn.setAttribute('data-id', item.id);
+
+    const numStr = item.source === 'layer' ? item.num : String(item.num).padStart(2, '0');
+
+    btn.innerHTML = `
+      <span class="pg-nav-item-num">${numStr}</span>
+      <span class="pg-nav-item-title">${item.name}<span class="pg-nav-item-ko">${item.nameKo || ''}</span></span>
+      <span class="pg-nav-item-cat">${item.cat}</span>
+    `;
+
+    btn.addEventListener('click', () => {
+      selectComponent(item.id);
+    });
+
+    return btn;
+  }
+
+  // 4. Component Selection & Sandbox Injection
+  function selectComponent(id) {
+    const item = allItems.find(i => i.id === id);
+    if (!item) return;
+
+    currentActiveId = id;
+    window.location.hash = id;
+
+    // Update nav active states
+    document.querySelectorAll('.pg-nav-item').forEach(el => {
+      if (el.getAttribute('data-id') === id) {
+        el.classList.add('active');
+        el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      } else {
+        el.classList.remove('active');
+      }
+    });
+
+    // Populate Info Header
+    infoCat.textContent = item.cat ? item.cat.toUpperCase() : 'UI';
+    infoNum.textContent = item.source === 'layer' ? item.num : `#${String(item.num).padStart(2, '0')}`;
+    infoId.textContent = item.id;
+    infoName.textContent = item.name;
+    infoNameKo.textContent = item.nameKo ? `(${item.nameKo})` : '';
+    infoDesc.textContent = item.desc || '설명이 없습니다.';
+    infoUsecase.textContent = item.usecase || '-';
+    infoFeature.textContent = item.feature || '-';
+
+    if (item.a11y) {
+      a11yBox.style.display = 'block';
+      infoA11y.textContent = item.a11y;
+    } else {
+      a11yBox.style.display = 'none';
+    }
+
+    // Inject into Sandbox
+    loadSandbox(item);
+
+    // Update Code Tab
+    renderCode(item);
+  }
+
+  function loadSandbox(item) {
+    // 1. Inject CSS
+    sandboxInjectedStyle.textContent = item.css || '';
+
+    // 2. Inject HTML
+    sandboxContainer.innerHTML = item.html || '';
+
+    // 3. Execute JS in a safe context
+    if (item.js && item.js.trim()) {
+      try {
+        // Clean up possible lingering timeouts or globals if needed
+        const fn = new Function(item.js);
+        fn();
+      } catch (err) {
+        console.warn(`[Playground Sandbox Error for ${item.id}]:`, err);
+      }
+    }
+  }
+
+  // 5. Code Inspector & Syntax Highlighting
+  function renderCode(item) {
+    let rawCode = '';
+    let lang = 'html';
+
+    if (currentTab === 'html') {
+      rawCode = item.html || '';
+      lang = 'html';
+    } else if (currentTab === 'css') {
+      rawCode = item.css || '';
+      lang = 'css';
+    } else if (currentTab === 'js') {
+      rawCode = item.js || '';
+      lang = 'js';
+    }
+
+    if (!rawCode.trim()) {
+      codeOutput.innerHTML = `<span style="color: var(--text-tertiary); font-style: italic;">// 별도의 ${currentTab.toUpperCase()} 코드가 필요하지 않은 컴포넌트입니다.</span>`;
+      return;
+    }
+
+    if (window.Highlighter && typeof window.Highlighter.highlight === 'function') {
+      codeOutput.innerHTML = window.Highlighter.highlight(rawCode, lang);
+    } else {
+      codeOutput.textContent = rawCode;
+    }
+  }
+
+  // Code Tab Switching
+  codeTabs.forEach(tabBtn => {
+    tabBtn.addEventListener('click', () => {
+      codeTabs.forEach(b => b.classList.remove('active'));
+      tabBtn.classList.add('active');
+      currentTab = tabBtn.getAttribute('data-tab');
+
+      const currentItem = allItems.find(i => i.id === currentActiveId);
+      if (currentItem) renderCode(currentItem);
+    });
+  });
+
+  // Copy Code to Clipboard
+  copyCodeBtn.addEventListener('click', () => {
+    const currentItem = allItems.find(i => i.id === currentActiveId);
+    if (!currentItem) return;
+
+    let textToCopy = '';
+    if (currentTab === 'html') textToCopy = currentItem.html || '';
+    else if (currentTab === 'css') textToCopy = currentItem.css || '';
+    else if (currentTab === 'js') textToCopy = currentItem.js || '';
+
+    if (!textToCopy.trim()) return;
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      const orig = copyCodeBtn.textContent;
+      copyCodeBtn.textContent = '복사 완료!';
+      setTimeout(() => {
+        copyCodeBtn.textContent = orig;
+      }, 1400);
+    }).catch(err => {
+      console.error('Clipboard copy failed:', err);
+    });
+  });
+
+  // Sandbox Reset
+  resetSandboxBtn.addEventListener('click', () => {
+    const currentItem = allItems.find(i => i.id === currentActiveId);
+    if (currentItem) {
+      loadSandbox(currentItem);
+    }
+  });
+
+  // Prev / Next Navigation
+  function navigateOffset(offset) {
+    const currentIndex = allItems.findIndex(i => i.id === currentActiveId);
+    if (currentIndex === -1) return;
+    const nextIndex = (currentIndex + offset + allItems.length) % allItems.length;
+    selectComponent(allItems[nextIndex].id);
+  }
+
+  prevItemBtn.addEventListener('click', () => navigateOffset(-1));
+  nextItemBtn.addEventListener('click', () => navigateOffset(1));
+
+  // Category Filtering
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentCatFilter = btn.getAttribute('data-cat');
+      renderNav();
+    });
+  });
+
+  // Search Input
+  searchInput.addEventListener('input', (e) => {
+    searchQuery = e.target.value;
+    renderNav();
+  });
+
+  // Keyboard Shortcuts (⌘K, Esc, [, ])
+  window.addEventListener('keydown', (e) => {
+    // Cmd+K or Ctrl+K to search
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      searchInput.focus();
+      searchInput.select();
+    }
+    // Escape to clear search or blur
+    if (e.key === 'Escape') {
+      if (document.activeElement === searchInput) {
+        searchInput.value = '';
+        searchQuery = '';
+        renderNav();
+        searchInput.blur();
+      }
+    }
+    // [ and ] for prev/next when not in input
+    if (document.activeElement !== searchInput) {
+      if (e.key === '[') {
+        e.preventDefault();
+        navigateOffset(-1);
+      } else if (e.key === ']') {
+        e.preventDefault();
+        navigateOffset(1);
+      }
+    }
+  });
+
+  // 6. Initialization
+  initTheme();
+  renderNav();
+
+  // Load from hash if present, or default to first item
+  const hash = (window.location.hash || '').replace('#', '');
+  const initialItem = allItems.find(i => i.id === hash) || allItems[0];
+  if (initialItem) {
+    selectComponent(initialItem.id);
+  }
+
+})();
+</script>
+
+</body>
+</html>

@@ -91,7 +91,7 @@ body[data-theme="light"] {
   --bg-surface: #ffffff;
   --bg-surface-elevated: #f1f5f9;
   --bg-surface-subtle: #f8fafc;
-  --bg-preview: #ffffff;
+  --bg-preview: #f8fafc;
 
   --border-subtle: #e2e8f0;
   --border-strong: #cbd5e1;

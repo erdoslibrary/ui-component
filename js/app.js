@@ -182,29 +182,38 @@
     if (dom.countLayers) dom.countLayers.textContent = `${filteredLayers.length}`;
   }
 
-  // 7. 인터랙티브 미리보기 iframe 주입 (안전 격리 샌드박스)
+  // 7. 인터랙티브 미리보기 iframe 주입 (안전 격리 샌드박스 & 동적 높이 반응)
   function renderLivePreview(item) {
     if (!dom.stageIframe) return;
 
+    // 현재 테마 확인
+    const currentTheme = document.body.getAttribute('data-theme') || 'dark';
+
     // iframe 내부 HTML 문서 생성
     const docHtml = `<!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="${currentTheme}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 <style>
   * { box-sizing: border-box; }
-  body {
+  html, body {
     margin: 0;
-    padding: 24px 20px;
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-    color: #1e293b;
+    padding: 0;
+    width: 100%;
+  }
+  body {
+    padding: 36px 24px 140px; /* 팝업/달력/드롭다운이 펼쳐져도 잘리지 않도록 넉넉한 하단 여백 확보 */
+    font-family: 'Pretendard', 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: ${currentTheme === 'dark' ? '#f8fafc' : '#0f172a'};
     background: transparent;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    min-height: 240px;
+    justify-content: flex-start;
+    min-height: 360px;
     overflow-x: hidden;
   }
   ${item.css || ''}
@@ -218,22 +227,63 @@
     } catch(err) {
       console.warn("Component script preview warning:", err);
     }
+
+    // 드롭다운/달력/아코디언 토글 시 부모 창에 높이 갱신 알림
+    function notifyResize() {
+      try {
+        const h = Math.max(
+          document.body.scrollHeight,
+          document.documentElement.scrollHeight,
+          360
+        );
+        window.parent.postMessage({ type: 'PREVIEW_RESIZE', height: h }, '*');
+      } catch (e) {}
+    }
+
+    // DOM 변경 및 클릭 이벤트 발생 시 실시간 높이 재계산
+    window.addEventListener('click', () => setTimeout(notifyResize, 60));
+    window.addEventListener('resize', notifyResize);
+    if (window.ResizeObserver) {
+      new ResizeObserver(() => notifyResize()).observe(document.body);
+    }
+    setTimeout(notifyResize, 100);
   <\/script>
 </body>
 </html>`;
 
     dom.stageIframe.srcdoc = docHtml;
 
-    // 로드 후 높이 자동 반응
-    dom.stageIframe.onload = () => {
+    // 동적 높이 자동 조절 함수
+    function adjustIframeHeight(customHeight) {
       try {
-        const body = dom.stageIframe.contentWindow.document.body;
-        const html = dom.stageIframe.contentWindow.document.documentElement;
-        const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, 260);
-        dom.stageIframe.style.height = `${Math.min(height + 20, 500)}px`;
+        if (customHeight) {
+          dom.stageIframe.style.height = `${Math.max(customHeight + 20, 380)}px`;
+          return;
+        }
+        const win = dom.stageIframe.contentWindow;
+        if (win && win.document && win.document.body) {
+          const bodyH = win.document.body.scrollHeight;
+          const docH = win.document.documentElement.scrollHeight;
+          const h = Math.max(bodyH, docH, 360);
+          dom.stageIframe.style.height = `${Math.max(h + 24, 380)}px`;
+        } else {
+          dom.stageIframe.style.height = '380px';
+        }
       } catch (e) {
-        dom.stageIframe.style.height = '280px';
+        dom.stageIframe.style.height = '380px';
       }
+    }
+
+    // postMessage 수신 등록
+    window.onmessage = (e) => {
+      if (e.data && e.data.type === 'PREVIEW_RESIZE' && e.data.height) {
+        adjustIframeHeight(e.data.height);
+      }
+    };
+
+    dom.stageIframe.onload = () => {
+      adjustIframeHeight();
+      setTimeout(adjustIframeHeight, 150);
     };
   }
 
