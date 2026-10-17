@@ -17,7 +17,7 @@ const UX_LAYERS = [
     html: `<!-- Alert Dialog 마크업 -->
 <div class="ux-layer-backdrop" id="alertDialog" role="alertdialog" aria-modal="true" aria-labelledby="alertTitle" aria-describedby="alertDesc" hidden>
   <div class="ux-dialog-card ux-dialog-alert">
-    <div class="ux-dialog-icon danger">⚠️</div>
+    <div class="ux-dialog-icon danger"><svg class="lucide lucide-alert-triangle" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg></div>
     <div class="ux-dialog-content">
       <h3 class="ux-dialog-title" id="alertTitle">세션이 곧 만료됩니다</h3>
       <p class="ux-dialog-desc" id="alertDesc">보안을 위해 5분 동안 활동이 없어 로그아웃될 예정입니다. 계속 진행하시겠습니까?</p>
@@ -154,7 +154,7 @@ window.addEventListener('keydown', (e) => {
     html: `<!-- Confirm Dialog 마크업 -->
 <div class="ux-layer-backdrop" id="confirmDialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" hidden>
   <div class="ux-dialog-card">
-    <div class="ux-dialog-icon destructive">🗑️</div>
+    <div class="ux-dialog-icon destructive"><svg class="lucide lucide-trash-2" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg></div>
     <div class="ux-dialog-content">
       <h3 class="ux-dialog-title" id="confirmTitle">프로젝트를 삭제하시겠습니까?</h3>
       <p class="ux-dialog-desc">삭제된 프로젝트와 연관된 모든 데이터는 영구 복구할 수 없습니다. 계속하시겠습니까?</p>
@@ -303,16 +303,21 @@ function triggerToast(type, title, message) {
   const container = document.getElementById('toastContainer');
   if (!container) return;
 
-  const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+  const icons = {
+    success: '<svg class="lucide lucide-check-circle-2" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>',
+    error: '<svg class="lucide lucide-x-circle" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>',
+    warning: '<svg class="lucide lucide-alert-triangle" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>',
+    info: '<svg class="lucide lucide-info" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>'
+  };
   const toast = document.createElement('div');
   toast.className = \`ux-toast \${type}\`;
   toast.innerHTML = \`
-    <span class="ux-toast-icon">\${icons[type] || '🔔'}</span>
+    <span class="ux-toast-icon">\${icons[type] || '<svg class="lucide lucide-bell" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>'}</span>
     <div class="ux-toast-body">
       <div class="ux-toast-title">\${title}</div>
       <div class="ux-toast-desc">\${message}</div>
     </div>
-    <button type="button" class="ux-toast-close" aria-label="닫기">×</button>
+    <button type="button" class="ux-toast-close" aria-label="닫기"><svg class="lucide lucide-x" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
     <div class="ux-toast-bar"></div>
   \`;
 
@@ -343,7 +348,7 @@ function triggerToast(type, title, message) {
 <div class="ux-snackbar" id="snackbar" role="status" hidden>
   <span class="ux-snackbar-msg" id="snackbarMsg">항목이 휴지통으로 이동되었습니다.</span>
   <button type="button" class="ux-snackbar-action" id="snackbarUndoBtn">실행 취소</button>
-  <button type="button" class="ux-snackbar-close" id="snackbarCloseBtn" aria-label="닫기">✕</button>
+  <button type="button" class="ux-snackbar-close" id="snackbarCloseBtn" aria-label="닫기"><svg class="lucide lucide-x" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
 </div>
 
 <!-- 트리거 버튼 예시 -->
@@ -439,14 +444,14 @@ if (snackbarUndoBtn) snackbarUndoBtn.addEventListener('click', () => {
     </div>
     <div class="ux-sheet-head">
       <h3 class="ux-sheet-title" id="sheetTitle">공유하기</h3>
-      <button type="button" class="ux-sheet-close" id="sheetCloseBtn" aria-label="닫기">×</button>
+      <button type="button" class="ux-sheet-close" id="sheetCloseBtn" aria-label="닫기"><svg class="lucide lucide-x" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
     </div>
     <div class="ux-sheet-body">
       <div class="ux-sheet-grid">
-        <button class="ux-sheet-item"><span class="icon">🔗</span>링크 복사</button>
-        <button class="ux-sheet-item"><span class="icon">💬</span>카카오톡</button>
-        <button class="ux-sheet-item"><span class="icon">✉️</span>이메일</button>
-        <button class="ux-sheet-item"><span class="icon">📱</span>메시지</button>
+        <button class="ux-sheet-item"><span class="icon"><svg class="lucide lucide-link-2" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 1 1 0 10h-2"/><line x1="8" x2="16" y1="12" y2="12"/></svg></span>링크 복사</button>
+        <button class="ux-sheet-item"><span class="icon"><svg class="lucide lucide-message-circle" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>카카오톡</button>
+        <button class="ux-sheet-item"><span class="icon"><svg class="lucide lucide-mail" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>이메일</button>
+        <button class="ux-sheet-item"><span class="icon"><svg class="lucide lucide-smartphone" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg></span>메시지</button>
       </div>
     </div>
   </div>
@@ -516,18 +521,18 @@ if (bottomSheet) {
   <div class="ux-drawer-panel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
     <div class="ux-drawer-head">
       <h3 class="ux-drawer-title" id="drawerTitle">장바구니 (3)</h3>
-      <button type="button" class="ux-drawer-close" id="drawerCloseBtn" aria-label="닫기">✕</button>
+      <button type="button" class="ux-drawer-close" id="drawerCloseBtn" aria-label="닫기"><svg class="lucide lucide-x" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
     </div>
     <div class="ux-drawer-body">
       <div class="ux-drawer-item">
-        <div class="thumb">🎧</div>
+        <div class="thumb"><svg class="lucide lucide-headphones" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg></div>
         <div class="info">
           <strong>무선 노이즈 캔슬링 헤드폰</strong>
           <span class="price">289,000원</span>
         </div>
       </div>
       <div class="ux-drawer-item">
-        <div class="thumb">⌨️</div>
+        <div class="thumb"><svg class="lucide lucide-keyboard" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="M6 8h.001"/><path d="M10 8h.001"/><path d="M14 8h.001"/><path d="M18 8h.001"/><path d="M8 12h.001"/><path d="M12 12h.001"/><path d="M16 12h.001"/><path d="M7 16h10"/></svg></div>
         <div class="info">
           <strong>기계식 텐키리스 키보드</strong>
           <span class="price">149,000원</span>
@@ -542,7 +547,7 @@ if (bottomSheet) {
 </div>
 
 <!-- 트리거 버튼 예시 -->
-<button type="button" class="ux-btn ux-btn-primary" id="openDrawerBtn">🛒 장바구니 열기</button>`,
+<button type="button" class="ux-btn ux-btn-primary" id="openDrawerBtn" style="display:inline-flex;align-items:center;gap:6px;"><svg class="lucide lucide-shopping-cart" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg><span>장바구니 열기</span></button>`,
     css: `/* Slide-over Drawer 스타일 */
 .ux-drawer-backdrop {
   position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5);
@@ -600,9 +605,9 @@ if (slideoverDrawer) {
   <div class="ux-banner-content">
     <span class="ux-banner-badge">점검 안내</span>
     <span class="ux-banner-text">5월 20일(화) 새벽 02:00 ~ 06:00 정기 시스템 점검이 진행됩니다.</span>
-    <a href="#" class="ux-banner-link">자세히 보기 →</a>
+    <a href="#" class="ux-banner-link"><span>자세히 보기</span><svg class="lucide lucide-arrow-right" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
   </div>
-  <button type="button" class="ux-banner-close" id="bannerCloseBtn" aria-label="배너 닫기">✕</button>
+  <button type="button" class="ux-banner-close" id="bannerCloseBtn" aria-label="배너 닫기"><svg class="lucide lucide-x" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
 </aside>
 
 <!-- 트리거 버튼 예시 -->

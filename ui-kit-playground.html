@@ -25,6 +25,9 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 
+  <!-- Lucide Icons (Unified Icon System via lucide.dev) -->
+  <script src="js/vendor/lucide.min.js"></script>
+
   <style>
     /* ==========================================================================
        Design System Tokens (Anti-AI-Slop: Strict Neutral + Single Accent)
@@ -113,6 +116,17 @@
       --tok-num: #fb923c;
     }
 
+    /* Lucide Vector Icons Baseline (lucide.dev standard) */
+    .lucide, svg.lucide {
+      width: 1em;
+      height: 1em;
+      vertical-align: -0.15em;
+      stroke-width: 1.85px;
+      stroke: currentColor;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
     /* Reset & Base */
     *, *::before, *::after {
       box-sizing: border-box;
@@ -167,10 +181,7 @@
       height: 28px;
       border: 1px solid var(--border-strong);
       background: var(--bg-subtle);
-      color: var(--text-primary);
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 13px;
+      color: var(--accent);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -192,11 +203,14 @@
       font-family: var(--font-mono);
       font-size: 11px;
       font-weight: 500;
-      padding: 1px 6px;
+      padding: 2px 7px;
       background: var(--bg-subtle);
       border: 1px solid var(--border);
       color: var(--text-secondary);
       border-radius: var(--radius-xs);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
     }
 
     .pg-search-container {
@@ -211,7 +225,7 @@
       background: var(--bg-subtle);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
-      padding: 0 54px 0 30px;
+      padding: 0 54px 0 32px;
       font-family: var(--font-sans);
       font-size: 13px;
       color: var(--text-primary);
@@ -226,11 +240,13 @@
 
     .pg-search-icon {
       position: absolute;
-      left: 9px;
+      left: 10px;
       top: 50%;
       transform: translateY(-50%);
       color: var(--text-tertiary);
-      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       pointer-events: none;
     }
 
@@ -270,6 +286,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      text-decoration: none;
       transition: background var(--duration-fast), border-color var(--duration-fast);
     }
 
@@ -332,6 +349,9 @@
       font-weight: 500;
       border-radius: var(--radius-xs);
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
       transition: background var(--duration-fast), color var(--duration-fast), border-color var(--duration-fast);
     }
 
@@ -364,6 +384,22 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+
+    .pg-section-label-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .pg-section-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 1px 5px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xs);
+      color: var(--text-tertiary);
     }
 
     .pg-nav-item {
@@ -425,12 +461,15 @@
     .pg-nav-item-cat {
       font-family: var(--font-mono);
       font-size: 10px;
-      padding: 1px 4px;
+      padding: 1px 5px;
       border: 1px solid var(--border);
       border-radius: var(--radius-xs);
       color: var(--text-tertiary);
       margin-left: 6px;
       flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
     }
 
     /* ─── Right Main Workspace ─── */
@@ -459,11 +498,14 @@
     .pg-info-tag {
       font-family: var(--font-mono);
       font-size: 11px;
-      padding: 2px 6px;
+      padding: 2px 7px;
       border: 1px solid var(--border-strong);
       background: var(--bg-subtle);
       color: var(--text-secondary);
       border-radius: var(--radius-xs);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
 
     .pg-info-tag.accent {
@@ -515,8 +557,11 @@
       font-family: var(--font-mono);
       font-size: 11px;
       color: var(--text-tertiary);
-      margin-bottom: 3px;
+      margin-bottom: 4px;
       text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
 
     .pg-detail-val {
@@ -611,6 +656,9 @@
       border: 1px solid transparent;
       border-radius: var(--radius-xs);
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
       transition: background var(--duration-fast), color var(--duration-fast);
     }
 
@@ -668,6 +716,12 @@
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 8px;
+    }
+
+    .pg-footer-notice div {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
     }
 
     .pg-footer-notice a {
@@ -728,26 +782,31 @@
   <!-- ─── 1. Header Bar ─── -->
   <header class="pg-header">
     <div class="pg-brand">
-      <div class="pg-brand-mark">UI</div>
+      <div class="pg-brand-mark" aria-hidden="true">
+        <i data-lucide="layers" style="width: 15px; height: 15px;"></i>
+      </div>
       <div class="pg-brand-title">
         UI Kit Playground
-        <span class="pg-badge-pill" id="totalCountBadge">40 Items</span>
+        <span class="pg-badge-pill" id="totalCountBadge">
+          <i data-lucide="boxes" style="width: 11px; height: 11px;"></i>
+          <span id="totalCountBadgeText">40 Items</span>
+        </span>
       </div>
     </div>
 
     <!-- Search Box (Cmd+K) -->
     <div class="pg-search-container">
-      <span class="pg-search-icon">⚲</span>
+      <span class="pg-search-icon" aria-hidden="true"><i data-lucide="search" style="width: 14px; height: 14px;"></i></span>
       <input type="search" id="searchInput" class="pg-search-input" placeholder="컴포넌트 검색 (예: Button, Modal, Accordion...)">
       <span class="pg-search-shortcut">⌘K</span>
     </div>
 
     <!-- Actions -->
     <div class="pg-header-actions">
-      <button type="button" id="prevItemBtn" class="pg-btn" title="이전 컴포넌트 [">← 이전</button>
-      <button type="button" id="nextItemBtn" class="pg-btn" title="다음 컴포넌트 ]">다음 →</button>
-      <button type="button" id="themeToggleBtn" class="pg-btn" title="테마 전환">다크 모드</button>
-      <a href="index.html" class="pg-btn" title="메인 카탈로그 뷰로 이동">도감 뷰</a>
+      <button type="button" id="prevItemBtn" class="pg-btn" title="이전 컴포넌트 ["><i data-lucide="chevron-left" style="width: 14px; height: 14px;"></i><span>이전</span></button>
+      <button type="button" id="nextItemBtn" class="pg-btn" title="다음 컴포넌트 ]"><span>다음</span><i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i></button>
+      <button type="button" id="themeToggleBtn" class="pg-btn" title="테마 전환"><i data-lucide="sun" id="themeToggleIcon" style="width: 14px; height: 14px;"></i><span id="themeToggleText">라이트 모드</span></button>
+      <a href="index.html" class="pg-btn" title="메인 카탈로그 뷰로 이동"><i data-lucide="book-open" style="width: 14px; height: 14px;"></i><span>도감 뷰</span></a>
     </div>
   </header>
 
@@ -758,12 +817,12 @@
     <aside class="pg-sidebar">
       <!-- Category Filter Tabs -->
       <div class="pg-cat-filters">
-        <button type="button" class="pg-filter-btn active" data-cat="all">전체</button>
-        <button type="button" class="pg-filter-btn" data-cat="layer">UX 레이어</button>
-        <button type="button" class="pg-filter-btn" data-cat="input">입력</button>
-        <button type="button" class="pg-filter-btn" data-cat="nav">내비</button>
-        <button type="button" class="pg-filter-btn" data-cat="info">정보</button>
-        <button type="button" class="pg-filter-btn" data-cat="container">컨테이너</button>
+        <button type="button" class="pg-filter-btn active" data-cat="all"><i data-lucide="layout-grid" style="width: 12px; height: 12px;"></i><span>전체</span></button>
+        <button type="button" class="pg-filter-btn" data-cat="layer"><i data-lucide="layers" style="width: 12px; height: 12px;"></i><span>UX 레이어</span></button>
+        <button type="button" class="pg-filter-btn" data-cat="input"><i data-lucide="text-cursor-input" style="width: 12px; height: 12px;"></i><span>입력</span></button>
+        <button type="button" class="pg-filter-btn" data-cat="nav"><i data-lucide="compass" style="width: 12px; height: 12px;"></i><span>내비</span></button>
+        <button type="button" class="pg-filter-btn" data-cat="info"><i data-lucide="info" style="width: 12px; height: 12px;"></i><span>정보</span></button>
+        <button type="button" class="pg-filter-btn" data-cat="container"><i data-lucide="box" style="width: 12px; height: 12px;"></i><span>컨테이너</span></button>
       </div>
 
       <!-- Navigation List -->
@@ -778,9 +837,9 @@
       <!-- Component Info Header -->
       <section class="pg-info-bar">
         <div class="pg-info-meta">
-          <span class="pg-info-tag accent" id="infoCat">CATEGORY</span>
-          <span class="pg-info-tag" id="infoNum">#01</span>
-          <span class="pg-info-tag" id="infoId">id</span>
+          <span class="pg-info-tag accent" id="infoCat"><i data-lucide="layers" style="width: 11px; height: 11px;"></i><span id="infoCatText">CATEGORY</span></span>
+          <span class="pg-info-tag" id="infoNum"><i data-lucide="hash" style="width: 11px; height: 11px;"></i><span id="infoNumText">#01</span></span>
+          <span class="pg-info-tag" id="infoId"><i data-lucide="tag" style="width: 11px; height: 11px;"></i><span id="infoIdText">id</span></span>
         </div>
         <h1 class="pg-info-title">
           <span id="infoName">Accordion</span>
@@ -790,15 +849,15 @@
 
         <div class="pg-info-details">
           <div class="pg-detail-box">
-            <div class="pg-detail-label">권장 활용처 (Usecase)</div>
+            <div class="pg-detail-label"><i data-lucide="target" style="width: 12px; height: 12px;"></i> 권장 활용처 (Usecase)</div>
             <div class="pg-detail-val" id="infoUsecase">-</div>
           </div>
           <div class="pg-detail-box">
-            <div class="pg-detail-label">주요 특징 (Key Feature)</div>
+            <div class="pg-detail-label"><i data-lucide="sparkles" style="width: 12px; height: 12px;"></i> 주요 특징 (Key Feature)</div>
             <div class="pg-detail-val" id="infoFeature">-</div>
           </div>
           <div class="pg-detail-box" id="a11yBox">
-            <div class="pg-detail-label">접근성 가이드 (Accessibility)</div>
+            <div class="pg-detail-label"><i data-lucide="shield-check" style="width: 12px; height: 12px;"></i> 접근성 가이드 (Accessibility)</div>
             <div class="pg-detail-val" id="infoA11y">-</div>
           </div>
         </div>
@@ -811,10 +870,11 @@
         <section class="pg-preview-card">
           <div class="pg-card-header">
             <div class="pg-card-title">
-              <span>●</span> 실시간 인터랙션 미리보기 (Live Preview)
+              <i data-lucide="play" style="width: 13px; height: 13px; color: var(--accent);"></i>
+              <span>실시간 인터랙션 미리보기 (Live Preview)</span>
             </div>
             <div class="pg-card-actions">
-              <button type="button" id="resetSandboxBtn" class="pg-btn" title="인터랙션 초기화">초기화</button>
+              <button type="button" id="resetSandboxBtn" class="pg-btn" title="인터랙션 초기화"><i data-lucide="rotate-ccw" style="width: 13px; height: 13px;"></i><span>초기화</span></button>
             </div>
           </div>
           <div class="pg-stage">
@@ -828,12 +888,12 @@
         <section class="pg-code-card">
           <div class="pg-code-header">
             <div class="pg-code-tabs">
-              <button type="button" class="pg-code-tab active" data-tab="html">HTML</button>
-              <button type="button" class="pg-code-tab" data-tab="css">CSS</button>
-              <button type="button" class="pg-code-tab" data-tab="js">JavaScript</button>
+              <button type="button" class="pg-code-tab active" data-tab="html"><i data-lucide="file-code" style="width: 12px; height: 12px;"></i><span>HTML</span></button>
+              <button type="button" class="pg-code-tab" data-tab="css"><i data-lucide="palette" style="width: 12px; height: 12px;"></i><span>CSS</span></button>
+              <button type="button" class="pg-code-tab" data-tab="js"><i data-lucide="terminal" style="width: 12px; height: 12px;"></i><span>JavaScript</span></button>
             </div>
             <div class="pg-card-actions">
-              <button type="button" id="copyCodeBtn" class="pg-btn pg-btn-primary">코드 복사</button>
+              <button type="button" id="copyCodeBtn" class="pg-btn pg-btn-primary"><i data-lucide="copy" id="copyCodeIcon" style="width: 13px; height: 13px;"></i><span id="copyCodeText">코드 복사</span></button>
             </div>
           </div>
           <pre class="pg-code-pre"><code id="codeOutput"></code></pre>
@@ -844,9 +904,11 @@
       <!-- Footer Policy / Anti-AI-Slop Notice -->
       <footer class="pg-footer-notice">
         <div>
+          <i data-lucide="shield-check" style="width: 12px; height: 12px;"></i>
           <strong>Design Standard:</strong> Anti-AI-Slop Specification (1px borders, zero-gradients, purposeful typography).
         </div>
         <div>
+          <i data-lucide="type" style="width: 12px; height: 12px;"></i>
           Typography: Outfit (Display) & Pretendard (Body) & JetBrains Mono (Code).
         </div>
       </footer>
@@ -922,6 +984,18 @@
   const sandboxInjectedStyle = document.getElementById('sandboxInjectedStyle');
   const codeOutput = document.getElementById('codeOutput');
 
+  // Category icon mapping for Lucide
+  function getCatIcon(cat) {
+    switch (cat) {
+      case 'layer': return 'layers';
+      case 'input': return 'text-cursor-input';
+      case 'nav': return 'compass';
+      case 'info': return 'info';
+      case 'container': return 'box';
+      default: return 'component';
+    }
+  }
+
   // 2. Theme Management
   function initTheme() {
     const saved = localStorage.getItem('uikit_theme') || 'dark';
@@ -930,7 +1004,13 @@
   }
 
   function updateThemeBtn(theme) {
-    themeToggleBtn.textContent = theme === 'dark' ? '라이트 모드' : '다크 모드';
+    const isDark = theme === 'dark';
+    themeToggleBtn.innerHTML = isDark
+      ? `<i data-lucide="sun" style="width: 14px; height: 14px;"></i><span>라이트 모드</span>`
+      : `<i data-lucide="moon" style="width: 14px; height: 14px;"></i><span>다크 모드</span>`;
+    if (window.lucide) {
+      lucide.createIcons({ root: themeToggleBtn });
+    }
   }
 
   themeToggleBtn.addEventListener('click', () => {
@@ -967,7 +1047,7 @@
     });
 
     if (totalCountBadge) {
-      totalCountBadge.textContent = `${filtered.length} / ${allItems.length} Items`;
+      totalCountBadge.innerHTML = `<i data-lucide="boxes" style="width: 11px; height: 11px;"></i><span>${filtered.length} / ${allItems.length} Items</span>`;
     }
 
     navList.innerHTML = '';
@@ -984,7 +1064,7 @@
     if (layerItems.length > 0) {
       const label = document.createElement('div');
       label.className = 'pg-section-label';
-      label.innerHTML = `<span>UX 공통 레이어</span><span>${layerItems.length}</span>`;
+      label.innerHTML = `<span class="pg-section-label-title"><i data-lucide="layers" style="width: 12px; height: 12px;"></i> UX 공통 레이어</span><span class="pg-section-badge">${layerItems.length}</span>`;
       navList.appendChild(label);
 
       layerItems.forEach(item => {
@@ -995,12 +1075,17 @@
     if (compItems.length > 0) {
       const label = document.createElement('div');
       label.className = 'pg-section-label';
-      label.innerHTML = `<span>32 표준 컴포넌트</span><span>${compItems.length}</span>`;
+      label.innerHTML = `<span class="pg-section-label-title"><i data-lucide="component" style="width: 12px; height: 12px;"></i> 32 표준 컴포넌트</span><span class="pg-section-badge">${compItems.length}</span>`;
       navList.appendChild(label);
 
       compItems.forEach(item => {
         navList.appendChild(createNavItem(item));
       });
+    }
+
+    if (window.lucide) {
+      lucide.createIcons({ root: navList });
+      if (totalCountBadge) lucide.createIcons({ root: totalCountBadge });
     }
   }
 
@@ -1015,7 +1100,7 @@
     btn.innerHTML = `
       <span class="pg-nav-item-num">${numStr}</span>
       <span class="pg-nav-item-title">${item.name}<span class="pg-nav-item-ko">${item.nameKo || ''}</span></span>
-      <span class="pg-nav-item-cat">${item.cat}</span>
+      <span class="pg-nav-item-cat"><i data-lucide="${getCatIcon(item.cat)}" style="width: 10px; height: 10px;"></i>${item.cat}</span>
     `;
 
     btn.addEventListener('click', () => {
@@ -1044,9 +1129,10 @@
     });
 
     // Populate Info Header
-    infoCat.textContent = item.cat ? item.cat.toUpperCase() : 'UI';
-    infoNum.textContent = item.source === 'layer' ? item.num : `#${String(item.num).padStart(2, '0')}`;
-    infoId.textContent = item.id;
+    const catIcon = getCatIcon(item.cat);
+    infoCat.innerHTML = `<i data-lucide="${catIcon}" style="width: 11px; height: 11px;"></i><span>${(item.cat || 'UI').toUpperCase()}</span>`;
+    infoNum.innerHTML = `<i data-lucide="hash" style="width: 11px; height: 11px;"></i><span>${item.source === 'layer' ? item.num : '#' + String(item.num).padStart(2, '0')}</span>`;
+    infoId.innerHTML = `<i data-lucide="tag" style="width: 11px; height: 11px;"></i><span>${item.id}</span>`;
     infoName.textContent = item.name;
     infoNameKo.textContent = item.nameKo ? `(${item.nameKo})` : '';
     infoDesc.textContent = item.desc || '설명이 없습니다.';
@@ -1083,6 +1169,12 @@
       } catch (err) {
         console.warn(`[Playground Sandbox Error for ${item.id}]:`, err);
       }
+    }
+
+    // 4. Activate Lucide Icons in sandboxContainer and Info Bar
+    if (window.lucide) {
+      lucide.createIcons({ root: sandboxContainer });
+      lucide.createIcons({ root: document.querySelector('.pg-info-bar') });
     }
   }
 
@@ -1139,10 +1231,11 @@
     if (!textToCopy.trim()) return;
 
     navigator.clipboard.writeText(textToCopy).then(() => {
-      const orig = copyCodeBtn.textContent;
-      copyCodeBtn.textContent = '복사 완료!';
+      copyCodeBtn.innerHTML = `<i data-lucide="check" style="width: 13px; height: 13px;"></i><span>복사 완료!</span>`;
+      if (window.lucide) lucide.createIcons({ root: copyCodeBtn });
       setTimeout(() => {
-        copyCodeBtn.textContent = orig;
+        copyCodeBtn.innerHTML = `<i data-lucide="copy" style="width: 13px; height: 13px;"></i><span>코드 복사</span>`;
+        if (window.lucide) lucide.createIcons({ root: copyCodeBtn });
       }, 1400);
     }).catch(err => {
       console.error('Clipboard copy failed:', err);
@@ -1222,6 +1315,11 @@
   const initialItem = allItems.find(i => i.id === hash) || allItems[0];
   if (initialItem) {
     selectComponent(initialItem.id);
+  }
+
+  // Initial global Lucide icon creation
+  if (window.lucide) {
+    lucide.createIcons();
   }
 
 })();

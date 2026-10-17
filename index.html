@@ -99,8 +99,15 @@
       <!-- 1. Component Hero Info Card -->
       <article class="component-hero">
         <div class="hero-meta-row">
-          <span class="hero-num-badge" id="heroNum">#01</span>
-          <span class="hero-cat-badge" id="heroCat" data-cat="container">CONTAINER</span>
+          <div class="meta-badges">
+            <span class="hero-num-badge" id="heroNum">#01</span>
+            <span class="hero-cat-badge" id="heroCat" data-cat="container">CONTAINER</span>
+          </div>
+          <button type="button" class="spec-toggle-tab" id="specToggleTab" aria-expanded="false" title="권장 사용처 및 UX 스펙 가이드 열기/닫기">
+            <span class="spec-tab-icon">💡</span>
+            <span class="spec-tab-title">스펙 & 가이드</span>
+            <span class="spec-tab-arrow" id="specTabArrow">▾</span>
+          </button>
         </div>
         <div class="hero-title-wrap">
           <h2 class="hero-title" id="heroTitle">Accordion</h2>
@@ -110,8 +117,8 @@
           제목을 클릭하면 섹션이 펼쳐지거나 접히는 컴포넌트. 좁은 공간에 많은 정보를 단계적으로 노출할 수 있습니다.
         </p>
 
-        <!-- Spec & Guide Grid -->
-        <div class="hero-spec-grid">
+        <!-- Spec & Guide Grid (기본 접힘, 상단 탭 클릭 시 열림) -->
+        <div class="hero-spec-grid" id="heroSpecGrid">
           <div class="spec-card">
             <span class="spec-label">🎯 권장 사용처 (Use Case)</span>
             <span class="spec-value" id="specUsecase">FAQ · 상품 상세 설명 · 설정 메뉴</span>

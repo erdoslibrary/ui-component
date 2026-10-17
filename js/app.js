@@ -42,6 +42,8 @@
     specUsecase: document.getElementById('specUsecase'),
     specFeature: document.getElementById('specFeature'),
     specA11y: document.getElementById('specA11y'),
+    specToggleTab: document.getElementById('specToggleTab'),
+    heroSpecGrid: document.getElementById('heroSpecGrid'),
 
     // Preview Stage
     stageContainer: document.getElementById('stageContainer'),
@@ -546,6 +548,17 @@ ${item.js && item.js.trim() ? `<script>\n${item.js}\n<\/script>` : ''}`;
     }
   }
 
+  // 16. 스펙 & 가이드 토글 탭 제어
+  function setupSpecToggle() {
+    if (!dom.specToggleTab || !dom.heroSpecGrid) return;
+
+    dom.specToggleTab.addEventListener('click', () => {
+      const isOpen = dom.heroSpecGrid.classList.toggle('is-open');
+      dom.specToggleTab.classList.toggle('is-active', isOpen);
+      dom.specToggleTab.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+  }
+
   // 16. 해시 라우팅 및 초기화 실행
   function init() {
     setupTheme();
@@ -553,6 +566,7 @@ ${item.js && item.js.trim() ? `<script>\n${item.js}\n<\/script>` : ''}`;
     setupTabs();
     setupViewportControls();
     setupStageResizer();
+    setupSpecToggle();
     setupMobileMenu();
     updateSidebar();
 
